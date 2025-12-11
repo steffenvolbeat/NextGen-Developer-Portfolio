@@ -1,8 +1,32 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# NextGen Developer Portfolio 🚀
 
-## Getting Started
+Ein innovatives 3D-Portfolio mit Motherboard-Design, interaktiver Navigation und fotorealistischen Animationen.
 
-First, run the development server:
+## ✨ Features
+
+- 🌙 **Dark/Light Mode** - Vollständig implementiertes Theme-System mit Toggle
+- 🎮 **3D Navigation** - WASD + Maus Steuerung durch Portfolio-Stationen
+- 💎 **Fotorealistische 3D-Szene** - PBR Materialien, Studio-Beleuchtung, Circuit Traces
+- 📱 **Responsive Design** - Optimiert für alle Geräte
+- ⚡ **Next.js 16** - Neueste React Framework Version mit Turbopack
+- 🎨 **Tailwind CSS 4** - Moderne Styling-Lösung
+- 🔷 **TypeScript** - Vollständige Typisierung
+
+## 🌙 Dark Mode
+
+Das Portfolio verfügt über ein vollständiges Dark/Light Mode System:
+
+- **Auto-Detection:** Erkennt System-Theme automatisch
+- **Toggle Button:** Einfacher Wechsel zwischen Modi (Top-Right)
+- **LocalStorage:** Theme-Einstellung bleibt gespeichert
+- **Smooth Transitions:** Sanfte Übergänge zwischen Themes
+- **Theme-aware Components:** Alle Komponenten passen sich an
+
+📖 Siehe [DARK-MODE-GUIDE.md](./DARK-MODE-GUIDE.md) für Details
+
+## 🚀 Getting Started
+
+Entwicklungsserver starten:
 
 ```bash
 npm run dev
@@ -18,16 +42,60 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📚 Dokumentation
 
-## Learn More
+- **[DOCUMENTATION.md](./DOCUMENTATION.md)** - Komplette Projekt-Dokumentation
+- **[DARK-MODE-GUIDE.md](./DARK-MODE-GUIDE.md)** - Dark Mode Implementierungs-Anleitung
+- **[USER-DATA-GUIDE.md](./USER-DATA-GUIDE.md)** - Portfolio-Daten bearbeiten
+- **[DARK-MODE-IMPLEMENTATION.md](./DARK-MODE-IMPLEMENTATION.md)** - Implementierungs-Zusammenfassung
 
-To learn more about Next.js, take a look at the following resources:
+## 🛠 Tech Stack
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Frontend
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **Next.js 16.0.6** - React Framework mit Turbopack
+- **React 19.2.0** - UI Library
+- **TypeScript 5** - Typisierung
+- **Tailwind CSS 4** - Styling
+- **Framer Motion** - Animationen
+
+### 3D Graphics
+
+- **Three.js** - 3D Engine
+- **React Three Fiber** - React Integration
+- **React Three Drei** - Utilities
+
+### Geplant
+
+- **Prisma 6.9** - ORM
+- **PostgreSQL** - Datenbank
+- **Jest & Cypress** - Testing
+
+## 🎯 Project Structure
+
+```
+src/
+├── app/              # Next.js App Router
+│   ├── layout.tsx    # Root Layout mit ThemeProvider
+│   ├── page.tsx      # Main Page
+│   └── globals.css   # Global Styles + Theme Variables
+├── components/       # React Components
+│   ├── 3d/          # 3D Components
+│   ├── hud/         # UI Overlays
+│   ├── stations/    # Portfolio Stations
+│   └── ui/          # UI Components (ThemeToggle)
+├── contexts/        # React Contexts (ThemeContext)
+├── data/           # Portfolio Data (portfolio.ts)
+├── hooks/          # Custom Hooks
+└── types/          # TypeScript Types
+```
+
+## 📖 Learn More
+
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Three.js Documentation](https://threejs.org/docs/)
+- [React Three Fiber](https://docs.pmnd.rs/react-three-fiber)
+- [Tailwind CSS](https://tailwindcss.com/docs)
 
 ## Deploy on Vercel
 

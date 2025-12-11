@@ -76,17 +76,19 @@ export default function PortfolioStations({
     if (type === "backstage") {
       return (
         <group position={pos} ref={stationRef}>
-          {/* STATION NAME LABEL */}
-          <Html position={[0, 7, 0]} center distanceFactor={10}>
-            <div
-              className="bg-black/90 backdrop-blur-md border border-cyan-400/50 rounded-lg px-12 py-6 pointer-events-auto cursor-pointer hover:bg-cyan-400/20 transition-all duration-300 hover:scale-105"
-              onClick={() => activateStation(type as any)}
-            >
-              <h3 className="text-cyan-400 font-bold text-4xl whitespace-nowrap">
-                {name}
-              </h3>
-            </div>
-          </Html>
+          {/* STATION NAME LABEL - Versteckt wenn Station aktiv ist */}
+          {!activeStation && (
+            <Html position={[0, 7, 0]} center distanceFactor={10}>
+              <div
+                className="bg-black/90 backdrop-blur-md border border-cyan-400/50 rounded-lg px-12 py-6 pointer-events-auto cursor-pointer hover:bg-cyan-400/20 transition-all duration-300 hover:scale-105"
+                onClick={() => activateStation(type as any)}
+              >
+                <h3 className="text-cyan-400 font-bold text-4xl whitespace-nowrap">
+                  {name}
+                </h3>
+              </div>
+            </Html>
+          )}
 
           {/* CYBER TOR MIT ANIMIERTEN TÜREN - 180° GEDREHT */}
           <group position={[0, 0, 0]} rotation={[0, Math.PI, 0]}>
@@ -271,8 +273,9 @@ export default function PortfolioStations({
     if (type === "experience") {
       return (
         <group position={pos} ref={stationRef} rotation={[0, -Math.PI / 3, 0]}>
-          {/* STATION NAME LABEL */}
-          <Html position={[0, 5, -3.5]} center distanceFactor={10}>
+          {/* STATION NAME LABEL - Versteckt wenn Station aktiv ist */}
+          {!activeStation && (
+            <Html position={[0, 5, -3.5]} center distanceFactor={10}>
             <div
               className="bg-black/90 backdrop-blur-md border border-purple-400/50 rounded-lg px-12 py-6 pointer-events-auto cursor-pointer hover:bg-purple-400/20 transition-all duration-300 hover:scale-105"
               onClick={() => activateStation(type as any)}
@@ -282,6 +285,7 @@ export default function PortfolioStations({
               </h3>
             </div>
           </Html>
+          )}
 
           {/* GROSSER HÖHENVERSTELLBARER STEHSCHREIBTISCH */}
           <group position={[0, 0, -3.5]}>
@@ -522,17 +526,19 @@ export default function PortfolioStations({
 
       return (
         <group position={pos} ref={stationRef}>
-          {/* STATION NAME LABEL */}
-          <Html position={[0, 8, 0]} center distanceFactor={10}>
-            <div
-              className="bg-black/90 backdrop-blur-md border border-green-400/50 rounded-lg px-12 py-6 pointer-events-auto cursor-pointer hover:bg-green-400/20 transition-all duration-300 hover:scale-105"
-              onClick={() => activateStation(type as any)}
-            >
-              <h3 className="text-green-400 font-bold text-4xl whitespace-nowrap">
-                {name}
-              </h3>
-            </div>
-          </Html>
+          {/* STATION NAME LABEL - Versteckt wenn Station aktiv ist */}
+          {!activeStation && (
+            <Html position={[0, 8, 0]} center distanceFactor={10}>
+              <div
+                className="bg-black/90 backdrop-blur-md border border-green-400/50 rounded-lg px-12 py-6 pointer-events-auto cursor-pointer hover:bg-green-400/20 transition-all duration-300 hover:scale-105"
+                onClick={() => activateStation(type as any)}
+              >
+                <h3 className="text-green-400 font-bold text-4xl whitespace-nowrap">
+                  {name}
+                </h3>
+              </div>
+            </Html>
+          )}
 
           {/* STATISCHER SOCKEL UND MECHANIK */}
           {/* Robuste ovale Basis - BLEIBT STATISCH */}
@@ -742,17 +748,19 @@ export default function PortfolioStations({
           ref={stationRef}
           rotation={[0, Math.PI / 4 + Math.PI / 8, 0]}
         >
-          {/* STATION NAME LABEL */}
-          <Html position={[0, 7, 0]} center distanceFactor={10}>
-            <div
-              className="bg-black/90 backdrop-blur-md border border-blue-400/50 rounded-lg px-12 py-6 pointer-events-auto cursor-pointer hover:bg-blue-400/20 transition-all duration-300 hover:scale-105"
-              onClick={() => activateStation(type as any)}
-            >
-              <h3 className="text-blue-400 font-bold text-4xl whitespace-nowrap">
-                {name}
-              </h3>
-            </div>
-          </Html>
+          {/* STATION NAME LABEL - Versteckt wenn Station aktiv ist */}
+          {!activeStation && (
+            <Html position={[0, 7, 0]} center distanceFactor={10}>
+              <div
+                className="bg-black/90 backdrop-blur-md border border-blue-400/50 rounded-lg px-12 py-6 pointer-events-auto cursor-pointer hover:bg-blue-400/20 transition-all duration-300 hover:scale-105"
+                onClick={() => activateStation(type as any)}
+              >
+                <h3 className="text-blue-400 font-bold text-4xl whitespace-nowrap">
+                  {name}
+                </h3>
+              </div>
+            </Html>
+          )}
 
           {/* 3x3 Server-Rack Grid */}
           {Array.from({ length: 9 }).map((_, i) => {
@@ -919,17 +927,19 @@ export default function PortfolioStations({
         <group position={pos} rotation={[0, Math.PI / 8, 0]} ref={stationRef}>
           {" "}
           {/* 22.5° = π/8 nach rechts */}
-          {/* STATION NAME LABEL */}
-          <Html position={[0, 6, 0]} center distanceFactor={10}>
-            <div
-              className="bg-black/90 backdrop-blur-md border border-gray-400/50 rounded-lg px-12 py-6 pointer-events-auto cursor-pointer hover:bg-gray-400/20 transition-all duration-300 hover:scale-105"
-              onClick={() => activateStation(type as any)}
-            >
-              <h3 className="text-gray-400 font-bold text-4xl whitespace-nowrap">
-                {name}
-              </h3>
-            </div>
-          </Html>
+          {/* STATION NAME LABEL - Versteckt wenn Station aktiv ist */}
+          {!activeStation && (
+            <Html position={[0, 6, 0]} center distanceFactor={10}>
+              <div
+                className="bg-black/90 backdrop-blur-md border border-gray-400/50 rounded-lg px-12 py-6 pointer-events-auto cursor-pointer hover:bg-gray-400/20 transition-all duration-300 hover:scale-105"
+                onClick={() => activateStation(type as any)}
+              >
+                <h3 className="text-gray-400 font-bold text-4xl whitespace-nowrap">
+                  {name}
+                </h3>
+              </div>
+            </Html>
+          )}
           {/* HAUPTSERVER-SCHRANK MIT INTEGRIERTEM MONITOR-PULT */}
           <group position={[0, 0, 0]}>
             {/* Server-Rack Schrank */}
@@ -1200,17 +1210,19 @@ export default function PortfolioStations({
     if (type === "testimonials") {
       return (
         <group position={pos} ref={stationRef} rotation={[0, Math.PI / 4, 0]}>
-          {/* STATION NAME LABEL */}
-          <Html position={[0, 6, 0]} center distanceFactor={10}>
-            <div
-              className="bg-black/90 backdrop-blur-md border border-orange-400/50 rounded-lg px-12 py-6 pointer-events-auto cursor-pointer hover:bg-orange-400/20 transition-all duration-300 hover:scale-105"
-              onClick={() => activateStation(type as any)}
-            >
-              <h3 className="text-orange-400 font-bold text-4xl whitespace-nowrap">
-                {name}
-              </h3>
-            </div>
-          </Html>
+          {/* STATION NAME LABEL - Versteckt wenn Station aktiv ist */}
+          {!activeStation && (
+            <Html position={[0, 6, 0]} center distanceFactor={10}>
+              <div
+                className="bg-black/90 backdrop-blur-md border border-orange-400/50 rounded-lg px-12 py-6 pointer-events-auto cursor-pointer hover:bg-orange-400/20 transition-all duration-300 hover:scale-105"
+                onClick={() => activateStation(type as any)}
+              >
+                <h3 className="text-orange-400 font-bold text-4xl whitespace-nowrap">
+                  {name}
+                </h3>
+              </div>
+            </Html>
+          )}
 
           {/* HAUPTPODEST */}
           <RoundedBox args={[5, 0.3, 5]} position={[0, 0.15, 0]}>
@@ -1345,17 +1357,19 @@ export default function PortfolioStations({
     if (type === "about") {
       return (
         <group position={pos} ref={stationRef}>
-          {/* STATION NAME LABEL */}
-          <Html position={[0, 6, 0]} center distanceFactor={10}>
-            <div
-              className="bg-black/90 backdrop-blur-md border border-cyan-400/50 rounded-lg px-12 py-6 pointer-events-auto cursor-pointer hover:bg-cyan-400/20 transition-all duration-300 hover:scale-105"
-              onClick={() => activateStation(type as any)}
-            >
-              <h3 className="text-cyan-400 font-bold text-4xl whitespace-nowrap">
-                {name}
-              </h3>
-            </div>
-          </Html>
+          {/* STATION NAME LABEL - Versteckt wenn Station aktiv ist */}
+          {!activeStation && (
+            <Html position={[0, 6, 0]} center distanceFactor={10}>
+              <div
+                className="bg-black/90 backdrop-blur-md border border-cyan-400/50 rounded-lg px-12 py-6 pointer-events-auto cursor-pointer hover:bg-cyan-400/20 transition-all duration-300 hover:scale-105"
+                onClick={() => activateStation(type as any)}
+              >
+                <h3 className="text-cyan-400 font-bold text-4xl whitespace-nowrap">
+                  {name}
+                </h3>
+              </div>
+            </Html>
+          )}
 
           {/* MODERNER SCHREIBTISCH */}
           <group position={[0, 0, 0]} rotation={[0, -Math.PI / 6, 0]}>
@@ -1865,17 +1879,19 @@ export default function PortfolioStations({
 
       return (
         <group position={pos} ref={stationRef}>
-          {/* STATION NAME LABEL */}
-          <Html position={[0, 6, 0]} center distanceFactor={10}>
-            <div
-              className="bg-black/90 backdrop-blur-md border border-red-400/50 rounded-lg px-12 py-6 pointer-events-auto cursor-pointer hover:bg-red-400/20 transition-all duration-300 hover:scale-105"
-              onClick={() => activateStation(type as any)}
-            >
-              <h3 className="text-red-400 font-bold text-4xl whitespace-nowrap">
-                {name}
-              </h3>
-            </div>
-          </Html>
+          {/* STATION NAME LABEL - Versteckt wenn Station aktiv ist */}
+          {!activeStation && (
+            <Html position={[0, 6, 0]} center distanceFactor={10}>
+              <div
+                className="bg-black/90 backdrop-blur-md border border-red-400/50 rounded-lg px-12 py-6 pointer-events-auto cursor-pointer hover:bg-red-400/20 transition-all duration-300 hover:scale-105"
+                onClick={() => activateStation(type as any)}
+              >
+                <h3 className="text-red-400 font-bold text-4xl whitespace-nowrap">
+                  {name}
+                </h3>
+              </div>
+            </Html>
+          )}
 
           {/* INDUSTRIE-ROBOTERARM */}
           <group position={[0, 0, 0]} ref={robotBaseRef}>

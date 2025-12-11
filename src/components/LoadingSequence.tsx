@@ -3,13 +3,50 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, Box, Cylinder } from "@react-three/drei";
+import { OrbitControls, Box, Cylinder, Environment } from "@react-three/drei";
 import { Mesh, Group, Vector3 } from "three";
 import * as THREE from "three";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface LoadingSequenceProps {
   onComplete: () => void;
 }
+
+// Kamera-Controller für dynamische Verfolgung
+interface CameraControllerProps {
+  sequence: number;
+}
+
+const CameraController: React.FC<CameraControllerProps> = ({ sequence }) => {
+  useFrame(({ camera, clock }) => {
+    const time = clock.getElapsedTime();
+
+    if (sequence === 0) {
+      // Kamera folgt dem Würfel während des Falls
+      const fallProgress = Math.min(time / 4, 1);
+      const targetY = 6 - fallProgress * 6.3;
+
+      // Sanfte Kamera-Bewegung
+      camera.position.y += (targetY * 0.4 + 2 - camera.position.y) * 0.05;
+      camera.lookAt(0, targetY * 0.6, 0);
+    } else if (sequence === 1) {
+      // Kamera zoomt näher ran zur CPU
+      camera.position.y += (2 - camera.position.y) * 0.03;
+      camera.position.z += (10 - camera.position.z) * 0.03;
+      camera.lookAt(0, 0, 0);
+    } else if (sequence >= 2) {
+      // Kamera dreht sich leicht um die Szene
+      const radius = 10;
+      const angle = time * 0.1;
+      camera.position.x = Math.sin(angle) * radius * 0.3;
+      camera.position.z = Math.cos(angle) * radius;
+      camera.position.y = 3;
+      camera.lookAt(0, 0.5, 0);
+    }
+  });
+
+  return null;
+};
 
 // 3D-Würfel Komponente
 interface AnimatedCubeProps {
@@ -19,6 +56,7 @@ interface AnimatedCubeProps {
 const AnimatedCube: React.FC<AnimatedCubeProps> = ({ sequence }) => {
   const cubeRef = useRef<Mesh>(null);
   const [startAnimation, setStartAnimation] = useState(false);
+  const [startTime, setStartTime] = useState(0);
 
   // Helper function für lineare Interpolation
   const lerp = (start: number, end: number, factor: number) => {
@@ -32,33 +70,42 @@ const AnimatedCube: React.FC<AnimatedCubeProps> = ({ sequence }) => {
   useFrame(({ clock }: { clock: THREE.Clock }) => {
     if (!cubeRef.current) return;
 
-    const time = clock.getElapsedTime();
+    const currentTime = clock.getElapsedTime();
+
+    // Setze Startzeit beim ersten Aufruf der Sequenz
+    if (startAnimation && startTime === 0) {
+      setStartTime(currentTime);
+    }
+
+    const time = currentTime - startTime;
 
     if (sequence === 0 && startAnimation) {
-      // Sequenz 1: Würfel fällt langsamer von oben
-      const fallProgress = Math.min(time / 4, 1); // Langsamerer Fall (4 Sekunden statt 2.5)
+      // Sequenz 1: Würfel fällt langsam von oben in die CPU
+      const fallProgress = Math.min(time / 4, 1); // Fall dauert 4 Sekunden (langsamer)
       const easeInQuart =
         fallProgress * fallProgress * fallProgress * fallProgress;
 
-      cubeRef.current.position.y = 8 - easeInQuart * 8;
-      cubeRef.current.position.x = Math.sin(time * 2) * 0.4; // Langsamere Pendelbewegung
-      cubeRef.current.rotation.x = time * 2; // Langsamere Rotationen
+      // Würfel fällt von Position Y=6 bis Y=-0.3 (SICHTBAR im Kamera-Bereich)
+      cubeRef.current.position.y = 6 - easeInQuart * 6.3;
+      cubeRef.current.position.x = Math.sin(time * 2) * 0.3;
+      cubeRef.current.rotation.x = time * 2;
       cubeRef.current.rotation.y = time * 1.5;
       cubeRef.current.rotation.z = time * 1;
 
-      const scale = 0.3 + fallProgress * 0.5;
+      const scale = 0.4 + fallProgress * 0.4;
       cubeRef.current.scale.setScalar(scale);
     } else if (sequence === 1 && startAnimation) {
-      // Sequenz 2: Würfel integriert sich in CPU, bleibt als Bestandteil sichtbar
-      const integrationProgress = Math.min(time / 3, 1);
+      // Sequenz 2: Würfel erscheint wieder und ragt ZUR HÄLFTE aus CPU heraus
+      const integrationProgress = Math.min(time / 2.5, 1);
 
-      // Bewegung zur finalen Position (herausragender CPU-Bestandteil)
-      const targetY = 0.4; // Finale Position: ragt aus CPU heraus
-      const targetScale = 0.6; // Finale Größe als CPU-Bestandteil
+      // Ziel: Würfel ragt zur Hälfte heraus (Y = 0.3, da CPU bei Y=0 ist)
+      const targetY = 0.3; // Würfel-Größe ist 0.8, also ragt 0.4 (die Hälfte) heraus
+      const targetScale = 0.8;
 
-      cubeRef.current.position.y = lerp(0, targetY, integrationProgress);
-      cubeRef.current.position.x = Math.sin(time * 1.5) * 0.05; // Sehr leichte Bewegung
-      cubeRef.current.rotation.x = time * 0.3; // Langsamere, kontinuierliche Rotation
+      // Würfel taucht aus der CPU auf
+      cubeRef.current.position.y = lerp(-0.3, targetY, integrationProgress);
+      cubeRef.current.position.x = Math.sin(time * 1.5) * 0.05;
+      cubeRef.current.rotation.x = time * 0.3;
       cubeRef.current.rotation.y = time * 0.2;
       cubeRef.current.rotation.z = time * 0.1;
 
@@ -82,49 +129,53 @@ const AnimatedCube: React.FC<AnimatedCubeProps> = ({ sequence }) => {
       }
     } else if (sequence >= 2 && startAnimation) {
       // Sequenz 3+: Würfel ist dauerhaft integrierter CPU-Bestandteil
-      cubeRef.current.position.y = 0.4; // Konstante Position: ragt aus CPU
-      cubeRef.current.position.x = Math.sin(time * 1.5) * 0.03; // Minimale Bewegung
-      cubeRef.current.position.z = 0; // Zentriert
+      cubeRef.current.position.y = 0.3; // Konstante Position: ragt zur Hälfte aus CPU
+      cubeRef.current.position.x = Math.sin(currentTime * 1.5) * 0.03;
+      cubeRef.current.position.z = 0;
 
-      cubeRef.current.rotation.x = time * 0.2; // Langsame, kontinuierliche Rotation
-      cubeRef.current.rotation.y = time * 0.15;
-      cubeRef.current.rotation.z = time * 0.1;
+      cubeRef.current.rotation.x = currentTime * 0.2;
+      cubeRef.current.rotation.y = currentTime * 0.15;
+      cubeRef.current.rotation.z = currentTime * 0.1;
 
-      cubeRef.current.scale.setScalar(0.6); // Konstante CPU-Bestandteil-Größe
+      cubeRef.current.scale.setScalar(0.8); // Würfel-Größe bleibt bei 0.8
 
       // Material synchronisiert mit CPU
       if (cubeRef.current.material instanceof THREE.MeshStandardMaterial) {
-        // Pulst synchron mit der CPU
-        const cpuPulse = 0.4 + Math.sin(time * 2) * 0.2;
+        const cpuPulse = 0.5 + Math.sin(currentTime * 2) * 0.3;
         cubeRef.current.material.emissiveIntensity = cpuPulse;
         cubeRef.current.material.opacity = 1;
 
-        // CPU-ähnliche Farbe (grün-bläulich)
-        cubeRef.current.material.color.setRGB(0.1, 1, 0.6);
-        cubeRef.current.material.emissive.setRGB(0.1, 1, 0.6);
+        // Leuchtende CPU-Farbe (cyan-grün)
+        cubeRef.current.material.color.setRGB(0.0, 0.9, 0.7);
+        cubeRef.current.material.emissive.setRGB(0.0, 0.9, 0.7);
       }
     }
   });
 
-  // Würfel bleibt für immer als CPU-Bestandteil sichtbar
-  // if (sequence >= 999) return null; // Niemals ausblenden
+  // Würfel ist nur sichtbar wenn Sequenz >= 0
+  if (sequence < 0) return null;
 
   return (
     <Box
       ref={cubeRef}
-      position={[0, 8, 0]}
-      args={[0.6, 0.6, 0.6]}
+      position={[0, 6, 0]}
+      args={[0.8, 0.8, 0.8]}
       castShadow
       receiveShadow
     >
-      <meshStandardMaterial
+      <meshPhysicalMaterial
         color="#00d4ff"
-        emissive="#0066cc"
-        emissiveIntensity={0.2}
-        metalness={0.8}
-        roughness={0.2}
-        transparent
-        opacity={1}
+        emissive="#0099ff"
+        emissiveIntensity={0.4}
+        metalness={0.95}
+        roughness={0.05}
+        clearcoat={1.0}
+        clearcoatRoughness={0.1}
+        reflectivity={1}
+        transmission={0.2}
+        thickness={0.5}
+        ior={2.4}
+        envMapIntensity={1.5}
       />
     </Box>
   );
@@ -158,51 +209,246 @@ const CPU3D: React.FC<CPU3DProps> = ({ sequence }) => {
 
   return (
     <group ref={cpuRef} position={[0, -0.5, 0]}>
-      {/* CPU Base */}
-      <Box position={[0, 0, 0]} args={[3, 0.3, 3]} receiveShadow>
-        <meshStandardMaterial color="#2c3e50" metalness={0.8} roughness={0.3} />
+      {/* CPU Base - Realistische PCB */}
+      <Box position={[0, 0, 0]} args={[3, 0.3, 3]} receiveShadow castShadow>
+        <meshPhysicalMaterial
+          color="#1a3d2e"
+          metalness={0.2}
+          roughness={0.6}
+          clearcoat={0.3}
+          clearcoatRoughness={0.4}
+        />
       </Box>
 
-      {/* CPU Pins */}
-      {Array.from({ length: 64 }).map((_, i) => {
-        const x = ((i % 8) - 3.5) * 0.3;
-        const z = (Math.floor(i / 8) - 3.5) * 0.3;
+      {/* CPU Pins - Goldene Kontakte */}
+      {Array.from({ length: 100 }).map((_, i) => {
+        const x = ((i % 10) - 4.5) * 0.25;
+        const z = (Math.floor(i / 10) - 4.5) * 0.25;
         return (
-          <Box key={i} position={[x, 0.15, z]} args={[0.05, 0.3, 0.05]}>
-            <meshStandardMaterial
-              color="#ffd700"
+          <Box
+            key={i}
+            position={[x, 0.15, z]}
+            args={[0.06, 0.3, 0.06]}
+            castShadow
+          >
+            <meshPhysicalMaterial
+              color="#ffcc00"
               metalness={1}
-              roughness={0.1}
+              roughness={0.15}
+              clearcoat={1}
+              clearcoatRoughness={0.05}
+              reflectivity={1}
             />
           </Box>
         );
       })}
 
-      {/* CPU Core */}
+      {/* CPU Core - Silicon Chip */}
       <Box
         ref={coreRef}
-        position={[0, 0.2, 0]}
-        args={[1.5, 0.2, 1.5]}
+        position={[0, 0.25, 0]}
+        args={[1.8, 0.15, 1.8]}
         castShadow
         receiveShadow
       >
-        <meshStandardMaterial
-          color={sequence >= 2 ? "#00ffaa" : "#34495e"}
-          emissive={sequence >= 2 ? "#00ffaa" : "#2c3e50"}
-          emissiveIntensity={sequence >= 2 ? 0.3 : 0.1}
-          metalness={0.9}
-          roughness={0.1}
+        <meshPhysicalMaterial
+          color={sequence >= 2 ? "#00ffaa" : "#2d3e50"}
+          emissive={sequence >= 2 ? "#00ffaa" : "#1a2530"}
+          emissiveIntensity={sequence >= 2 ? 0.6 : 0.1}
+          metalness={0.95}
+          roughness={0.08}
+          clearcoat={1}
+          clearcoatRoughness={0.05}
+          reflectivity={1}
         />
       </Box>
 
-      {/* CPU Markierung */}
-      <Box position={[0, 0.21, 0]} args={[0.3, 0.01, 0.3]}>
-        <meshStandardMaterial
-          color="#ffffff"
-          emissive="#ffffff"
-          emissiveIntensity={0.5}
+      {/* CPU Heatspreader - Metallische Oberfläche */}
+      <Box position={[0, 0.33, 0]} args={[1.6, 0.02, 1.6]} castShadow>
+        <meshPhysicalMaterial
+          color="#e0e0e0"
+          metalness={1}
+          roughness={0.2}
+          clearcoat={0.8}
+          clearcoatRoughness={0.1}
         />
       </Box>
+
+      {/* CPU Logo/Markierung */}
+      <Box position={[0, 0.35, 0]} args={[0.4, 0.005, 0.4]}>
+        <meshPhysicalMaterial
+          color="#ffffff"
+          emissive="#ffffff"
+          emissiveIntensity={0.8}
+          metalness={0.8}
+          roughness={0.2}
+        />
+      </Box>
+
+      {/* Realistische Kondensatoren um die CPU */}
+      {Array.from({ length: 8 }).map((_, i) => {
+        const angle = (i / 8) * Math.PI * 2;
+        const radius = 1.3;
+        const x = Math.cos(angle) * radius;
+        const z = Math.sin(angle) * radius;
+        return (
+          <group key={`cap-${i}`}>
+            <mesh position={[x, 0.2, z]} castShadow>
+              <cylinderGeometry args={[0.08, 0.08, 0.3, 16]} />
+              <meshPhysicalMaterial
+                color="#1a1a1a"
+                metalness={0.3}
+                roughness={0.7}
+              />
+            </mesh>
+            <mesh position={[x, 0.35, z]}>
+              <cylinderGeometry args={[0.08, 0.08, 0.02, 16]} />
+              <meshPhysicalMaterial
+                color="#b8860b"
+                metalness={0.9}
+                roughness={0.2}
+              />
+            </mesh>
+          </group>
+        );
+      })}
+    </group>
+  );
+};
+
+// Leuchtende Leiterbahnen von CPU zu den Stationen
+interface CircuitTracesProps {
+  sequence: number;
+}
+
+const CircuitTraces: React.FC<CircuitTracesProps> = ({ sequence }) => {
+  const tracesRef = useRef<Group>(null);
+
+  useFrame(({ clock }: { clock: THREE.Clock }) => {
+    if (!tracesRef.current || sequence < 2) return;
+
+    const time = clock.getElapsedTime();
+
+    // Pulsierendes Leuchten durch die Leiterbahnen
+    tracesRef.current.children.forEach((child, i) => {
+      if (
+        child instanceof THREE.Mesh &&
+        child.material instanceof THREE.MeshStandardMaterial
+      ) {
+        const wave = Math.sin(time * 2 + i * 0.5) * 0.3 + 0.7;
+        child.material.emissiveIntensity = wave;
+      }
+    });
+  });
+
+  if (sequence < 2) return null;
+
+  // 12 Stationen-Positionen (wie BuildingBlocks)
+  const stationPositions = Array.from({ length: 12 }).map((_, i) => {
+    const angle = (i / 12) * Math.PI * 2;
+    const radius = 2;
+    return {
+      x: Math.cos(angle) * radius,
+      z: Math.sin(angle) * radius,
+      angle: angle,
+    };
+  });
+
+  return (
+    <group ref={tracesRef}>
+      {stationPositions.map((pos, i) => {
+        const colors = [
+          "#00d4ff",
+          "#00ffaa",
+          "#ff00aa",
+          "#ffaa00",
+          "#aa00ff",
+          "#00ff00",
+        ];
+        const color = colors[i % colors.length];
+
+        // Erstelle Leiterbahn von CPU (0,0,0) zur Station
+        const segments = 20;
+        const points: THREE.Vector3[] = [];
+
+        for (let j = 0; j <= segments; j++) {
+          const t = j / segments;
+          // Kurvige Leiterbahn (Bezier-ähnlich)
+          const x = pos.x * t;
+          const z = pos.z * t;
+          const y = -0.5 + Math.sin(t * Math.PI) * 0.3; // Wellenförmig
+          points.push(new THREE.Vector3(x, y, z));
+        }
+
+        const curve = new THREE.CatmullRomCurve3(points);
+        const tubeGeometry = new THREE.TubeGeometry(curve, 32, 0.02, 8, false);
+
+        return (
+          <group key={`trace-${i}`}>
+            {/* Leiterbahn */}
+            <mesh geometry={tubeGeometry}>
+              <meshStandardMaterial
+                color={color}
+                emissive={color}
+                emissiveIntensity={0.8}
+                metalness={0.9}
+                roughness={0.1}
+                transparent
+                opacity={0.9}
+              />
+            </mesh>
+
+            {/* Leuchtende Punkte entlang der Leiterbahn */}
+            {Array.from({ length: 5 }).map((_, pointIndex) => {
+              const t = (pointIndex + 1) / 6;
+              const point = curve.getPoint(t);
+              return (
+                <mesh
+                  key={`point-${i}-${pointIndex}`}
+                  position={[point.x, point.y, point.z]}
+                >
+                  <sphereGeometry args={[0.04, 8, 8]} />
+                  <meshStandardMaterial
+                    color={color}
+                    emissive={color}
+                    emissiveIntensity={1.2}
+                  />
+                </mesh>
+              );
+            })}
+
+            {/* Verbindungs-Pad an der CPU */}
+            <mesh
+              position={[0, -0.5, 0]}
+              rotation={[-Math.PI / 2, 0, pos.angle]}
+            >
+              <cylinderGeometry args={[0.08, 0.08, 0.02, 16]} />
+              <meshPhysicalMaterial
+                color={color}
+                emissive={color}
+                emissiveIntensity={1}
+                metalness={1}
+                roughness={0.1}
+              />
+            </mesh>
+
+            {/* Verbindungs-Pad an der Station */}
+            <mesh
+              position={[pos.x, -0.5, pos.z]}
+              rotation={[-Math.PI / 2, 0, 0]}
+            >
+              <cylinderGeometry args={[0.12, 0.12, 0.02, 16]} />
+              <meshPhysicalMaterial
+                color={color}
+                emissive={color}
+                emissiveIntensity={1}
+                metalness={1}
+                roughness={0.1}
+              />
+            </mesh>
+          </group>
+        );
+      })}
     </group>
   );
 };
@@ -233,20 +479,32 @@ const BuildingBlocks: React.FC<BuildingBlocksProps> = ({ sequence }) => {
         const z = Math.sin(angle) * radius;
         const y = Math.sin(i * 0.5) * 0.5;
 
+        const colors = [
+          "#4a90e2",
+          "#e74c3c",
+          "#2ecc71",
+          "#f39c12",
+          "#9b59b6",
+          "#1abc9c",
+        ];
+        const color = colors[i % colors.length];
         return (
           <group key={i}>
             <Box
               position={[x, y, z]}
-              args={[0.4, 0.8, 0.4]}
+              args={[0.45, 0.9, 0.45]}
               castShadow
               receiveShadow
             >
-              <meshStandardMaterial
-                color="#4a90e2"
-                emissive="#2c5aa0"
-                emissiveIntensity={0.3}
-                metalness={0.7}
-                roughness={0.3}
+              <meshPhysicalMaterial
+                color={color}
+                emissive={color}
+                emissiveIntensity={0.4}
+                metalness={0.85}
+                roughness={0.15}
+                clearcoat={1}
+                clearcoatRoughness={0.1}
+                reflectivity={1}
               />
             </Box>
           </group>
@@ -259,6 +517,7 @@ const BuildingBlocks: React.FC<BuildingBlocksProps> = ({ sequence }) => {
 export const LoadingSequence: React.FC<LoadingSequenceProps> = ({
   onComplete,
 }) => {
+  const { theme } = useTheme();
   const [currentSequence, setCurrentSequence] = useState(0);
 
   // Sequenz-Schritte basierend auf den PNG-Beschreibungen
@@ -267,24 +526,24 @@ export const LoadingSequence: React.FC<LoadingSequenceProps> = ({
       id: 1,
       title: "Würfel erscheint",
       description: "Ein kleiner Würfel fällt langsam in die CPU",
-      duration: 4500, // Längere Duration für langsameren Fall
+      duration: 5000, // 5 Sekunden - genug Zeit um den Fall zu sehen
     },
     {
       id: 2,
       title: "Ein- und Austritt",
       description: "Der Würfel verschwindet und tritt wieder aus",
-      duration: 3500, // Zeit für Zyklus-Animation
+      duration: 3000, // Zeit für Zyklus-Animation
     },
     {
       id: 3,
-      title: "Würfel eingefasst",
-      description: "Integration in die CPU abgeschlossen",
-      duration: 2000,
+      title: "Leiterbahnen aktivieren",
+      description: "Verbindungen zur CPU werden hergestellt",
+      duration: 2500,
     },
     {
       id: 4,
-      title: "Quader türmen sich auf",
-      description: "Das Portfolio-System entsteht",
+      title: "Portfolio-Stationen entstehen",
+      description: "Das interaktive System erwacht zum Leben",
       duration: 3000,
     },
     {
@@ -316,10 +575,24 @@ export const LoadingSequence: React.FC<LoadingSequenceProps> = ({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.5 }}
-      className="fixed inset-0 z-50 bg-black flex items-center justify-center overflow-hidden"
+      className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden"
+      style={{
+        background:
+          theme === "dark"
+            ? "linear-gradient(to bottom right, #334155, #1e293b, #1e3a8a)"
+            : "linear-gradient(to bottom right, #f1f5f9, #e2e8f0, #dbeafe)",
+      }}
     >
-      {/* Hintergrund-Effekte */}
-      <div className="absolute inset-0 bg-linear-to-br from-gray-900 via-black to-blue-900" />
+      {/* Hintergrund-Effekte - FOTOREALISTISCH */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            theme === "dark"
+              ? "linear-gradient(to top, transparent, rgba(59, 130, 246, 0.05), rgba(6, 182, 212, 0.1))"
+              : "linear-gradient(to top, transparent, rgba(59, 130, 246, 0.1), rgba(6, 182, 212, 0.15))",
+        }}
+      />
 
       {/* Animated Grid */}
       <div className="absolute inset-0 opacity-10">
@@ -339,53 +612,205 @@ export const LoadingSequence: React.FC<LoadingSequenceProps> = ({
       <div className="relative z-10 w-full h-full">
         <Canvas
           camera={{
-            position: [0, 4, 8],
-            fov: 45,
+            position: [0, 3, 12],
+            fov: 50,
+            near: 0.1,
+            far: 100,
           }}
-          shadows
+          shadows="soft"
+          gl={{
+            antialias: true,
+            alpha: true,
+            powerPreference: "high-performance",
+            toneMapping: THREE.ACESFilmicToneMapping,
+            toneMappingExposure: 1.2,
+          }}
         >
-          {/* Beleuchtung */}
-          <ambientLight intensity={0.2} />
+          {/* FOTOREALISTISCHE STUDIO-BELEUCHTUNG */}
+
+          {/* Ambient/Environment Light */}
+          <ambientLight intensity={0.8} color="#f0f0ff" />
+
+          {/* Key Light - Hauptlicht (vorne rechts oben) */}
           <directionalLight
-            position={[10, 10, 5]}
-            intensity={1}
+            position={[8, 12, 6]}
+            intensity={3}
+            color="#ffffff"
             castShadow
-            shadow-mapSize={[2048, 2048]}
+            shadow-mapSize={[4096, 4096]}
             shadow-camera-far={50}
-            shadow-camera-left={-10}
-            shadow-camera-right={10}
-            shadow-camera-top={10}
-            shadow-camera-bottom={-10}
+            shadow-camera-left={-15}
+            shadow-camera-right={15}
+            shadow-camera-top={15}
+            shadow-camera-bottom={-15}
+            shadow-bias={-0.0001}
           />
+
+          {/* Fill Light - Fülllicht (links) */}
+          <directionalLight
+            position={[-6, 8, 4]}
+            intensity={1.5}
+            color="#d4e8ff"
+          />
+
+          {/* Back Light - Gegenlicht (hinten oben) */}
+          <directionalLight
+            position={[-3, 10, -8]}
+            intensity={2}
+            color="#fff8e0"
+          />
+
+          {/* Top Light - Oberlicht */}
           <pointLight
-            position={[0, 5, 0]}
-            intensity={0.8}
-            color="#00ffaa"
-            distance={15}
+            position={[0, 15, 0]}
+            intensity={2}
+            color="#ffffff"
+            distance={25}
             decay={2}
+            castShadow
           />
+
+          {/* Accent Lights - Akzentbeleuchtung für CPU */}
           <spotLight
-            position={[0, 8, 0]}
-            angle={Math.PI / 4}
-            penumbra={1}
-            intensity={0.5}
+            position={[4, 6, 4]}
+            angle={Math.PI / 6}
+            penumbra={0.5}
+            intensity={2.5}
             color="#00d4ff"
             castShadow
             target-position={[0, 0, 0]}
           />
 
-          {/* 3D-Boden */}
-          <Box position={[0, -1.2, 0]} args={[20, 0.2, 20]} receiveShadow>
-            <meshStandardMaterial
-              color="#1a1a2e"
-              roughness={0.8}
-              metalness={0.2}
+          <spotLight
+            position={[-4, 6, -4]}
+            angle={Math.PI / 6}
+            penumbra={0.5}
+            intensity={2}
+            color="#00ffaa"
+            target-position={[0, 0, 0]}
+          />
+
+          {/* Rim Lights - Randbeleuchtung */}
+          <pointLight
+            position={[6, 3, -6]}
+            intensity={1.8}
+            color="#4da6ff"
+            distance={20}
+            decay={2}
+          />
+          <pointLight
+            position={[-6, 3, 6]}
+            intensity={1.5}
+            color="#66ffcc"
+            distance={20}
+            decay={2}
+          />
+
+          {/* Ground Bounce Light - Bodenreflexion */}
+          <hemisphereLight
+            args={["#ffffff", "#1a1a2e", 1]}
+            position={[0, -1, 0]}
+          />
+
+          {/* Environment Map für realistische Reflexionen */}
+          <Environment preset="city" background={false} />
+
+          {/* Realistischer Motherboard-Boden */}
+          <mesh
+            rotation={[-Math.PI / 2, 0, 0]}
+            position={[0, -1.2, 0]}
+            receiveShadow
+          >
+            <planeGeometry args={[30, 30]} />
+            <meshPhysicalMaterial
+              color="#0d1f1a"
+              roughness={0.3}
+              metalness={0.6}
+              clearcoat={0.8}
+              clearcoatRoughness={0.2}
+              reflectivity={0.8}
+              envMapIntensity={1}
             />
-          </Box>
+          </mesh>
+
+          {/* Leuchtende Motherboard-Grid-Linien */}
+          <gridHelper
+            args={[30, 60, "#00d4ff", "#004455"]}
+            position={[0, -1.15, 0]}
+          />
+
+          {/* Zusätzliche leuchtende Linien für Motherboard-Look */}
+          <group position={[0, -1.14, 0]}>
+            {Array.from({ length: 8 }).map((_, i) => {
+              const angle = (i / 8) * Math.PI * 2;
+              const radius = 3;
+              const x = Math.cos(angle) * radius;
+              const z = Math.sin(angle) * radius;
+              const rotation = angle + Math.PI / 2;
+
+              return (
+                <mesh
+                  key={`line-${i}`}
+                  position={[x / 2, 0, z / 2]}
+                  rotation={[-Math.PI / 2, 0, rotation]}
+                >
+                  <planeGeometry args={[0.05, radius]} />
+                  <meshStandardMaterial
+                    color="#00ffaa"
+                    emissive="#00ffaa"
+                    emissiveIntensity={0.6}
+                    transparent
+                    opacity={0.7}
+                  />
+                </mesh>
+              );
+            })}
+
+            {/* Konzentrische Kreise um CPU */}
+            {Array.from({ length: 3 }).map((_, i) => {
+              const radius = (i + 1) * 1.5;
+              const points: THREE.Vector3[] = [];
+
+              for (let j = 0; j <= 64; j++) {
+                const angle = (j / 64) * Math.PI * 2;
+                const x = Math.cos(angle) * radius;
+                const z = Math.sin(angle) * radius;
+                points.push(new THREE.Vector3(x, 0, z));
+              }
+
+              const curve = new THREE.CatmullRomCurve3(points, true);
+              const tubeGeometry = new THREE.TubeGeometry(
+                curve,
+                64,
+                0.02,
+                8,
+                true
+              );
+
+              return (
+                <mesh key={`circle-${i}`} geometry={tubeGeometry}>
+                  <meshStandardMaterial
+                    color="#00d4ff"
+                    emissive="#00d4ff"
+                    emissiveIntensity={0.5 + i * 0.2}
+                    transparent
+                    opacity={0.6}
+                  />
+                </mesh>
+              );
+            })}
+          </group>
+
+          {/* Kamera-Controller */}
+          <CameraController sequence={currentSequence} />
 
           {/* 3D-Komponenten */}
           <AnimatedCube sequence={currentSequence} />
           <CPU3D sequence={currentSequence} />
+
+          {/* Leuchtende Leiterbahnen von CPU zu Stationen */}
+          <CircuitTraces sequence={currentSequence} />
+
           <BuildingBlocks sequence={currentSequence} />
 
           {/* Development Controls (nur in Dev-Modus) */}
@@ -417,10 +842,16 @@ export const LoadingSequence: React.FC<LoadingSequenceProps> = ({
                 transition={{ duration: 0.5 }}
                 className="text-center space-y-4"
               >
-                <h2 className="text-2xl md:text-3xl font-light text-white tracking-wider">
+                <h2
+                  className="text-2xl md:text-3xl font-light tracking-wider"
+                  style={{ color: theme === "dark" ? "#ffffff" : "#0f172a" }}
+                >
                   {sequences[currentSequence]?.title}
                 </h2>
-                <p className="text-cyan-400 text-lg tracking-wide">
+                <p
+                  className="text-lg tracking-wide"
+                  style={{ color: theme === "dark" ? "#06b6d4" : "#0891b2" }}
+                >
                   {sequences[currentSequence]?.description}
                 </p>
               </motion.div>
@@ -433,7 +864,8 @@ export const LoadingSequence: React.FC<LoadingSequenceProps> = ({
                 className="text-center space-y-6"
               >
                 <motion.h1
-                  className="text-4xl md:text-6xl font-thin text-white tracking-wider"
+                  className="text-4xl md:text-6xl font-thin tracking-wider"
+                  style={{ color: theme === "dark" ? "#ffffff" : "#0f172a" }}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 1 }}
@@ -441,13 +873,20 @@ export const LoadingSequence: React.FC<LoadingSequenceProps> = ({
                   NEXTGEN
                 </motion.h1>
                 <motion.div
-                  className="w-48 h-1 bg-linear-to-r from-transparent via-cyan-400 to-transparent mx-auto"
+                  className="w-48 h-1 mx-auto"
+                  style={{
+                    background:
+                      theme === "dark"
+                        ? "linear-gradient(to right, transparent, #06b6d4, transparent)"
+                        : "linear-gradient(to right, transparent, #0891b2, transparent)",
+                  }}
                   initial={{ width: 0 }}
                   animate={{ width: "12rem" }}
                   transition={{ delay: 1.5, duration: 1 }}
                 />
                 <motion.p
-                  className="text-xl md:text-2xl text-cyan-400 font-light tracking-wide"
+                  className="text-xl md:text-2xl font-light tracking-wide"
+                  style={{ color: theme === "dark" ? "#06b6d4" : "#0891b2" }}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 2 }}
@@ -455,7 +894,8 @@ export const LoadingSequence: React.FC<LoadingSequenceProps> = ({
                   Developer Portfolio
                 </motion.p>
                 <motion.p
-                  className="text-gray-300 text-lg tracking-wide"
+                  className="text-lg tracking-wide"
+                  style={{ color: theme === "dark" ? "#cbd5e1" : "#475569" }}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 2.5 }}
@@ -467,9 +907,20 @@ export const LoadingSequence: React.FC<LoadingSequenceProps> = ({
           </AnimatePresence>
 
           {/* Fortschrittsbalken */}
-          <div className="w-80 h-1 bg-gray-800 rounded-full overflow-hidden">
+          <div
+            className="w-80 h-1 rounded-full overflow-hidden"
+            style={{
+              backgroundColor: theme === "dark" ? "#1e293b" : "#cbd5e1",
+            }}
+          >
             <motion.div
-              className="h-full bg-linear-to-r from-cyan-400 to-blue-500"
+              className="h-full"
+              style={{
+                background:
+                  theme === "dark"
+                    ? "linear-gradient(to right, #06b6d4, #3b82f6)"
+                    : "linear-gradient(to right, #0891b2, #2563eb)",
+              }}
               initial={{ width: "0%" }}
               animate={{
                 width: `${((currentSequence + 1) / sequences.length) * 100}%`,
@@ -479,7 +930,10 @@ export const LoadingSequence: React.FC<LoadingSequenceProps> = ({
           </div>
 
           {/* Sequenz-Nummer */}
-          <div className="text-gray-400 text-sm tracking-wider">
+          <div
+            className="text-sm tracking-wider"
+            style={{ color: theme === "dark" ? "#94a3b8" : "#64748b" }}
+          >
             {currentSequence + 1} / {sequences.length}
           </div>
         </div>
