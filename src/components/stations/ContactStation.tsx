@@ -92,16 +92,27 @@ export const ContactStation: React.FC<ContactStationProps> = ({
     setSubmitStatus("idle");
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
 
-      // Here you would typically send the form data to your backend
-      console.log("Form submitted:", formData);
+      if (!response.ok) {
+        throw new Error(`Request failed with ${response.status}`);
+      }
 
       setSubmitStatus("success");
-      setFormData({ name: "", email: "", subject: "", message: "", phone: "" });
+      setFormData({
+        name: "",
+        email: "",
+        subject: "",
+        message: "",
+        phone: "",
+      });
     } catch (error) {
       setSubmitStatus("error");
+      console.error("Contact form submit failed", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -114,6 +125,55 @@ export const ContactStation: React.FC<ContactStationProps> = ({
     }
   };
 
+  const getMethodUrl = (method: { type: string; value: string }) => {
+    const trimmed = method.value.trim();
+
+    if (method.type === "email") {
+      return `mailto:${encodeURIComponent(trimmed)}`;
+    }
+
+    if (method.type === "phone") {
+      return `tel:${trimmed.replace(/\s+/g, "")}`;
+    }
+
+    if (method.type === "whatsapp") {
+      const digits = trimmed.replace(/\D+/g, "");
+      return `https://wa.me/${digits}`;
+    }
+
+    return trimmed;
+  };
+
+  // Compose-Links für Webmail-Provider
+  const getGmailComposeUrl = (email: string) => {
+    const encoded = encodeURIComponent(email.trim());
+    return `https://mail.google.com/mail/?view=cm&fs=1&to=${encoded}`;
+  };
+
+  const getOutlookComposeUrl = (email: string) => {
+    const encoded = encodeURIComponent(email.trim());
+    return `https://outlook.live.com/mail/0/deeplink/compose?to=${encoded}`;
+  };
+
+  const handleMethodAction = (method: { type: string; value: string }) => {
+    const url = getMethodUrl(method);
+    if (!url || typeof window === "undefined") return;
+
+    if (method.type === "email") {
+      // Direkt Standard-Mailclient auslösen (Anchor-Klick zuverlässig)
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.target = "_self";
+      anchor.rel = "noopener noreferrer";
+      document.body.appendChild(anchor);
+      anchor.click();
+      document.body.removeChild(anchor);
+      return;
+    }
+
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
   if (!isActive) return null;
 
   return (
@@ -122,7 +182,8 @@ export const ContactStation: React.FC<ContactStationProps> = ({
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
       transition={{ duration: 0.5 }}
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 backdrop-blur-md p-4"
+      style={{ zIndex: 100 }}
+      className="fixed inset-0 flex items-center justify-center bg-black/85 backdrop-blur-md p-4"
     >
       <div className="relative max-w-6xl w-full max-h-[90vh] overflow-y-auto bg-white/5 backdrop-blur-sm border border-white/20 rounded-2xl">
         {/* Header */}
@@ -253,52 +314,110 @@ export const ContactStation: React.FC<ContactStationProps> = ({
 
                 {/* Contact Methods */}
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {contact.methods?.map((method, index) => (
-                    <motion.div
-                      key={method.type}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                    >
-                      <Card
-                        variant="glass"
-                        className={cn(
-                          "p-6 text-center hover:border-teal-400/50 transition-all duration-300 cursor-pointer group",
-                          method.primary && "border-teal-400/30 bg-teal-400/5"
-                        )}
+                  {contact.methods?.map((method, index) => {
+                    const normalized = {
+                      type: method.type ?? "other",
+                      value: method.value,
+                    };
+
+                    const cardOnClick =
+                      method.type === "email"
+                        ? undefined
+                        : () => handleMethodAction(normalized);
+
+                    return (
+                      <motion.div
+                        key={method.type}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.1 }}
                       >
-                        <div className="text-4xl mb-4">{method.icon}</div>
-                        <h3 className="text-lg font-semibold text-white mb-2">
-                          {method.label}
-                        </h3>
-                        <p className="text-gray-300 mb-4 text-sm break-all">
-                          {method.value}
-                        </p>
-
-                        <Button
-                          variant={method.primary ? "primary" : "outline"}
-                          size="sm"
-                          className="w-full group-hover:scale-105 transition-transform"
+                        <Card
+                          variant="glass"
+                          className={cn(
+                            "p-6 text-center hover:border-teal-400/50 transition-all duration-300 cursor-pointer group",
+                            method.primary && "border-teal-400/30 bg-teal-400/5"
+                          )}
+                          onClick={cardOnClick}
                         >
-                          {method.type === "email"
-                            ? "E-Mail senden"
-                            : method.type === "phone"
-                            ? "Anrufen"
-                            : method.type === "linkedin"
-                            ? "LinkedIn öffnen"
-                            : method.type === "github"
-                            ? "GitHub besuchen"
-                            : "Öffnen"}
-                        </Button>
+                          <div className="text-4xl mb-4">{method.icon}</div>
+                          <h3 className="text-lg font-semibold text-white mb-2">
+                            {method.label}
+                          </h3>
+                          <p className="text-gray-300 mb-4 text-sm break-all">
+                            {method.value}
+                          </p>
 
-                        {method.primary && (
-                          <div className="mt-2 text-xs text-teal-300">
-                            Bevorzugter Kontaktweg
-                          </div>
-                        )}
-                      </Card>
-                    </motion.div>
-                  ))}
+                          {method.type === "email" ? (
+                            <div className="space-y-2">
+                              <a
+                                href={getGmailComposeUrl(normalized.value)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="w-full inline-flex items-center justify-center h-10 px-4 py-2 rounded-md font-medium bg-blue-600 text-white hover:bg-blue-700 transition-transform group-hover:scale-105"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                }}
+                              >
+                                Gmail öffnen
+                              </a>
+
+                              <a
+                                href={getOutlookComposeUrl(normalized.value)}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="w-full inline-flex items-center justify-center h-10 px-4 py-2 rounded-md font-medium border border-slate-300 text-slate-100 bg-transparent hover:bg-white/10 transition-transform group-hover:scale-105"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                }}
+                              >
+                                Outlook öffnen
+                              </a>
+
+                              <a
+                                href={getMethodUrl(normalized)}
+                                className="w-full inline-flex items-center justify-center h-10 px-4 py-2 rounded-md font-medium border border-slate-300 text-slate-100 bg-transparent hover:bg-white/10 transition-transform group-hover:scale-105"
+                                target="_self"
+                                rel="noopener noreferrer"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                }}
+                              >
+                                Apple Mail / Standard
+                              </a>
+                            </div>
+                          ) : (
+                            <Button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleMethodAction(normalized);
+                              }}
+                              variant={method.primary ? "primary" : "outline"}
+                              size="sm"
+                              className="w-full group-hover:scale-105 transition-transform"
+                            >
+                              {method.type === "phone"
+                                ? "Anrufen"
+                                : method.type === "whatsapp"
+                                ? "WhatsApp öffnen"
+                                : method.type === "linkedin"
+                                ? "LinkedIn öffnen"
+                                : method.type === "github"
+                                ? "GitHub besuchen"
+                                : "Öffnen"}
+                            </Button>
+                          )}
+
+                          {method.primary && (
+                            <div className="mt-2 text-xs text-teal-300">
+                              Bevorzugter Kontaktweg
+                            </div>
+                          )}
+                        </Card>
+                      </motion.div>
+                    );
+                  })}
                 </div>
 
                 {/* Social Proof */}
@@ -306,35 +425,16 @@ export const ContactStation: React.FC<ContactStationProps> = ({
                   <h2 className="text-xl font-semibold text-white mb-4">
                     Was Kunden sagen
                   </h2>
-                  <div className="grid md:grid-cols-3 gap-6">
-                    <div className="text-center">
-                      <div className="text-2xl mb-2">⭐⭐⭐⭐⭐</div>
-                      <div className="text-sm text-gray-300">
-                        "Hervorragende Arbeit und sehr professionell!"
-                      </div>
-                      <div className="text-xs text-gray-400 mt-2">
-                        - Maria S.
-                      </div>
-                    </div>
-
-                    <div className="text-center">
-                      <div className="text-2xl mb-2">🚀</div>
-                      <div className="text-sm text-gray-300">
-                        "Projekt wurde pünktlich und im Budget geliefert."
-                      </div>
-                      <div className="text-xs text-gray-400 mt-2">
-                        - Thomas K.
-                      </div>
-                    </div>
-
-                    <div className="text-center">
-                      <div className="text-2xl mb-2">💡</div>
-                      <div className="text-sm text-gray-300">
-                        "Innovative Lösungen und tolle Kommunikation!"
-                      </div>
-                      <div className="text-xs text-gray-400 mt-2">
-                        - Lisa M.
-                      </div>
+                  <div className="grid md:grid-cols-3 gap-6 text-center text-gray-300">
+                    <div className="md:col-span-3 space-y-2">
+                      <div className="text-2xl">✨</div>
+                      <p className="text-sm">
+                        Platzhalter für zukünftige Kundenstimmen. Ich freue mich
+                        darauf, hier bald frisches Feedback zu präsentieren.
+                      </p>
+                      <p className="text-xs text-gray-400">
+                        Ihr Projekt könnte hier erscheinen – lassen Sie uns sprechen.
+                      </p>
                     </div>
                   </div>
                 </Card>
@@ -583,16 +683,39 @@ export const ContactStation: React.FC<ContactStationProps> = ({
                     </p>
 
                     <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-8">
-                      <Button
-                        variant="primary"
-                        size="lg"
+                      <a
+                        href={cv.downloadUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2"
+                        download
+                      >
+                        <Button
+                          variant="primary"
+                          size="lg"
+                          className="flex items-center gap-2"
+                        >
+                          📥 CV herunterladen (PDF)
+                        </Button>
+                      </a>
+
+                      <a
+                        href={cv.downloadUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="flex items-center gap-2"
                       >
-                        📥 CV herunterladen
-                        <span className="text-xs bg-white/20 px-2 py-1 rounded">
-                          PDF
-                        </span>
-                      </Button>
+                        <Button
+                          variant="outline"
+                          size="lg"
+                          className="flex items-center gap-2"
+                        >
+                          👁️ CV ansehen
+                          <span className="text-xs bg-white/10 px-2 py-1 rounded">
+                            PDF Viewer
+                          </span>
+                        </Button>
+                      </a>
 
                       <div className="text-sm text-gray-400">
                         Zuletzt aktualisiert:{" "}

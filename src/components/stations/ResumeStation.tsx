@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -119,6 +120,12 @@ const certifications: Certification[] = [
     issuer: "BFW Thüringen",
     date: "02/2020 - 06/2021",
   },
+  {
+    id: 2,
+    name: "Web- & Softwareentwickler Zertifikat",
+    issuer: "DCI - Digital Career Institute",
+    date: "02/2025 - 04/2026",
+  },
 ];
 
 const skills = {
@@ -142,11 +149,19 @@ export const ResumeStation: React.FC<ResumeStationProps> = ({
     "experience" | "education" | "skills" | "certifications"
   >("experience");
 
+  const cvDownloadUrl = "/Image/My%20Resume.pdf";
+
   if (!isActive) return null;
 
   const handleDownloadCV = () => {
-    // Hier würde der PDF-Download implementiert werden
-    alert("📥 CV-Download wird vorbereitet... (PDF-Generierung kommt bald!)");
+    const link = document.createElement("a");
+    link.href = cvDownloadUrl;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    link.download = "Steffen-Lorenz-CV.pdf";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -155,7 +170,8 @@ export const ResumeStation: React.FC<ResumeStationProps> = ({
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
       transition={{ duration: 0.5 }}
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 backdrop-blur-md p-4"
+      style={{ zIndex: 100 }}
+      className="fixed inset-0 flex items-center justify-center bg-black/85 backdrop-blur-md p-4"
     >
       <div className="relative max-w-7xl w-full max-h-[90vh] overflow-y-auto bg-white/5 backdrop-blur-sm border border-blue-400/30 rounded-2xl">
         {/* Header */}
@@ -218,22 +234,30 @@ export const ResumeStation: React.FC<ResumeStationProps> = ({
           >
             <Card className="bg-linear-to-r from-blue-500/10 to-cyan-500/10 border-blue-400/30 p-8">
               <div className="flex items-start gap-6">
-                <div className="w-24 h-24 rounded-full bg-blue-500/20 flex items-center justify-center text-5xl border-4 border-blue-400/30">
-                  👨‍💻
+                <div className="w-24 h-24 rounded-full bg-blue-500/20 border-4 border-blue-400/30 overflow-hidden relative">
+                  <Image
+                    src="/Image/BW-Foto.jpg"
+                    alt="Steffen Lorenz"
+                    fill
+                    sizes="96px"
+                    className="object-cover"
+                    priority
+                    style={{ objectPosition: "center 10%" }}
+                  />
                 </div>
                 <div className="flex-1">
                   <h2 className="text-3xl font-bold text-white mb-2">
                     Steffen Lorenz
                   </h2>
                   <p className="text-xl text-blue-300 mb-4">
-                    Web-Entwickler / Fullstack
+                    Web-& Software-Entwickler / Fullstack
                   </p>
                   <p className="text-gray-200 leading-relaxed">
-                    Als angehender engagierter Web-Entwickler mit Fokus auf
+                    Als angehender engagierter Web-& Software-Entwickler mit Fokus auf
                     strukturierte, semantische und performante Weblösungen.
                     Meine Schwerpunkte liegen in HTML5, CSS3, JavaScript,
-                    Next.js und SQL. Durch meine IT-Umschulung und vielseitige
-                    Praxiserfahrung arbeite ich analytisch, zuverlässig und
+                    Next.js, FiberJS, & SQL. Durch meine IT-Umschulung / Weiterbildung gewonnenen
+                    Kenntnisse arbeite ich analytisch, zuverlässig und
                     lösungsorientiert.
                   </p>
                   <div className="flex gap-4 mt-4">

@@ -11,6 +11,7 @@ import {
   Torus,
   Text,
   Html,
+  QuadraticBezierLine,
 } from "@react-three/drei";
 import { Group } from "three";
 import { useStationManager } from "@/contexts/StationManager";
@@ -276,15 +277,15 @@ export default function PortfolioStations({
           {/* STATION NAME LABEL - Versteckt wenn Station aktiv ist */}
           {!activeStation && (
             <Html position={[0, 5, -3.5]} center distanceFactor={10}>
-            <div
-              className="bg-black/90 backdrop-blur-md border border-purple-400/50 rounded-lg px-12 py-6 pointer-events-auto cursor-pointer hover:bg-purple-400/20 transition-all duration-300 hover:scale-105"
-              onClick={() => activateStation(type as any)}
-            >
-              <h3 className="text-purple-400 font-bold text-4xl whitespace-nowrap">
-                {name}
-              </h3>
-            </div>
-          </Html>
+              <div
+                className="bg-black/90 backdrop-blur-md border border-purple-400/50 rounded-lg px-12 py-6 pointer-events-auto cursor-pointer hover:bg-purple-400/20 transition-all duration-300 hover:scale-105"
+                onClick={() => activateStation(type as any)}
+              >
+                <h3 className="text-purple-400 font-bold text-4xl whitespace-nowrap">
+                  {name}
+                </h3>
+              </div>
+            </Html>
           )}
 
           {/* GROSSER HÖHENVERSTELLBARER STEHSCHREIBTISCH */}
@@ -2406,6 +2407,27 @@ export default function PortfolioStations({
             />
           </Box>
         </group>
+
+        {/* Leitlinien von der Zentrale zu jeder Station (leicht gebogen) */}
+        {stations.map((station, idx) => {
+          const bend = (idx % 2 === 0 ? 1 : -1) * 0.6;
+          const mid: [number, number, number] = [
+            station.pos[0] * 0.4 + bend,
+            0.5,
+            station.pos[2] * 0.4 - bend,
+          ];
+
+          return (
+            <QuadraticBezierLine
+              key={`line-${station.type}-${idx}`}
+              start={[0, 0.05, 0]}
+              end={[station.pos[0], 0.05, station.pos[2]]}
+              mid={mid}
+              color="#5ce1ff"
+              lineWidth={2}
+            />
+          );
+        })}
 
         {/* PROFESSIONELLE STATIONEN */}
         {stations.map((station, index) => (

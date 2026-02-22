@@ -41,7 +41,8 @@ export const SkillsStation: React.FC<SkillsStationProps> = ({
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
       transition={{ duration: 0.5 }}
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 backdrop-blur-md p-4"
+      style={{ zIndex: 100 }}
+      className="fixed inset-0 flex items-center justify-center bg-black/85 backdrop-blur-md p-4"
     >
       <div className="relative max-w-7xl w-full max-h-[90vh] overflow-y-auto bg-white/5 backdrop-blur-sm border border-white/20 rounded-2xl">
         {/* Header */}
@@ -144,22 +145,26 @@ export const SkillsStation: React.FC<SkillsStationProps> = ({
                           <div
                             className={cn(
                               "px-3 py-1 rounded-full text-sm font-medium",
-                              skill.level >= 90
-                                ? "bg-green-500/20 text-green-400 border border-green-400/30"
+                              skill.level >= 85
+                                ? "bg-green-500/20 text-green-300 border border-green-400/30"
                                 : skill.level >= 80
-                                ? "bg-blue-500/20 text-blue-400 border border-blue-400/30"
+                                ? "bg-emerald-500/20 text-emerald-200 border border-emerald-400/30"
                                 : skill.level >= 70
-                                ? "bg-yellow-500/20 text-yellow-400 border border-yellow-400/30"
+                                ? "bg-blue-500/20 text-blue-300 border border-blue-400/30"
+                                : skill.level >= 60
+                                ? "bg-yellow-500/20 text-yellow-300 border border-yellow-400/30"
                                 : "bg-gray-500/20 text-gray-400 border border-gray-400/30"
                             )}
                           >
-                            {skill.level >= 90
-                              ? "Expert"
-                              : skill.level >= 80
+                            {skill.level >= 85
                               ? "Sehr gut"
-                              : skill.level >= 70
+                              : skill.level >= 80
                               ? "Gut"
-                              : "Grundlagen"}
+                              : skill.level >= 70
+                              ? "Grundkenntnisse"
+                              : skill.level >= 60
+                              ? "Grundlagen"
+                              : "Anfänger"}
                           </div>
                         </div>
 
@@ -185,11 +190,11 @@ export const SkillsStation: React.FC<SkillsStationProps> = ({
                               }}
                               className={cn(
                                 "h-full rounded-full relative",
-                                skill.level >= 90
+                                skill.level >= 80
                                   ? "bg-linear-to-r from-green-400 to-emerald-500"
-                                  : skill.level >= 80
-                                  ? "bg-linear-to-r from-blue-400 to-cyan-500"
                                   : skill.level >= 70
+                                  ? "bg-linear-to-r from-blue-400 to-cyan-500"
+                                  : skill.level >= 60
                                   ? "bg-linear-to-r from-yellow-400 to-orange-500"
                                   : "bg-linear-to-r from-gray-400 to-gray-500"
                               )}
@@ -230,18 +235,32 @@ export const SkillsStation: React.FC<SkillsStationProps> = ({
               <h3 className="text-xl font-semibold text-white mb-4">
                 Skills Übersicht
               </h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              <div className="grid grid-cols-2 md:grid-cols-6 gap-6">
                 <div className="text-center">
                   <div className="text-2xl font-bold text-green-400 mb-1">
                     {portfolioData.skills.reduce(
                       (total, category) =>
                         total +
-                        category.items.filter((skill) => skill.level >= 90)
+                        category.items.filter((skill) => skill.level >= 85)
                           .length,
                       0
                     )}
                   </div>
-                  <div className="text-sm text-gray-300">Expert Level</div>
+                  <div className="text-sm text-gray-300">Sehr gut</div>
+                </div>
+
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-emerald-300 mb-1">
+                    {portfolioData.skills.reduce(
+                      (total, category) =>
+                        total +
+                        category.items.filter(
+                          (skill) => skill.level >= 80 && skill.level < 85
+                        ).length,
+                      0
+                    )}
+                  </div>
+                  <div className="text-sm text-gray-300">Gut</div>
                 </div>
 
                 <div className="text-center">
@@ -250,16 +269,30 @@ export const SkillsStation: React.FC<SkillsStationProps> = ({
                       (total, category) =>
                         total +
                         category.items.filter(
-                          (skill) => skill.level >= 80 && skill.level < 90
+                          (skill) => skill.level >= 70 && skill.level < 80
                         ).length,
                       0
                     )}
                   </div>
-                  <div className="text-sm text-gray-300">Sehr gut</div>
+                  <div className="text-sm text-gray-300">Grundkenntnisse</div>
                 </div>
 
                 <div className="text-center">
                   <div className="text-2xl font-bold text-yellow-400 mb-1">
+                    {portfolioData.skills.reduce(
+                      (total, category) =>
+                        total +
+                        category.items.filter(
+                          (skill) => skill.level >= 60 && skill.level < 70
+                        ).length,
+                      0
+                    )}
+                  </div>
+                  <div className="text-sm text-gray-300">Grundlagen</div>
+                </div>
+
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-orange-400 mb-1">
                     {portfolioData.skills.reduce(
                       (total, category) => total + category.items.length,
                       0
@@ -270,21 +303,7 @@ export const SkillsStation: React.FC<SkillsStationProps> = ({
 
                 <div className="text-center">
                   <div className="text-2xl font-bold text-purple-400 mb-1">
-                    {Math.round(
-                      portfolioData.skills.reduce(
-                        (total, category) =>
-                          total +
-                          category.items.reduce(
-                            (sum, skill) => sum + (skill.yearsExperience || 0),
-                            0
-                          ),
-                        0
-                      ) /
-                        portfolioData.skills.reduce(
-                          (total, category) => total + category.items.length,
-                          0
-                        )
-                    )}
+                    3
                   </div>
                   <div className="text-sm text-gray-300">Ø Jahre Erfahrung</div>
                 </div>

@@ -7,7 +7,7 @@ import { PortfolioData } from "@/types/portfolio";
 export const portfolioData: PortfolioData = {
   personal: {
     name: "Steffen Lorenz",
-    title: "Web-Entwickler / Fullstack",
+    title: "Web-& Softwareentwickler / Fullstack",
     location: "Erfurt, Deutschland",
     email: "steffen.konstanz@gmx.ch",
     phone: "+49 173 4235651",
@@ -28,23 +28,21 @@ export const portfolioData: PortfolioData = {
 
   about: {
     intro:
-      "Engagierter Web-Entwickler mit Fokus auf strukturierte, semantische und performante Weblösungen",
+      "Engagierter Web-& Softwareentwickler mit Fokus auf strukturierte, semantische und performante Weblösungen",
     personalInfo: {
       name: "Steffen Lorenz",
-      title: "Web-Entwickler / Fullstack",
+      title: "Web-& Softwareentwickler / Fullstack",
       location: "Erfurt, Deutschland",
       email: "steffen.konstanz@gmx.ch",
       social: {
         github: "https://github.com/steffenvolbeat",
         linkedin: "https://www.linkedin.com/in/steffenlorenz24",
-        twitter: "https://twitter.com/steffenvolbeat",
-        instagram: "https://instagram.com/steffenvolbeat",
       },
     },
     description: `
-      Als angehender engagierter Web-Entwickler mit Fokus auf strukturierte, semantische und 
-      performante Weblösungen bringe ich meine IT-Umschulung und vielseitige Praxiserfahrung ein. 
-      Meine Schwerpunkte liegen in HTML5, CSS3, JavaScript, Next.js und SQL.
+      Als angehender engagierter Web-& Softwareentwickler mit Fokus auf strukturierte, semantische und 
+      performante Weblösungen bringe ich meine durch die IT-Umschulung / Weiterbildung gewonnenen Kenntnisse mit ein. 
+      Meine Schwerpunkte liegen in HTML5, CSS3, JavaScript, Next.js, FiberJS, und SQL.
 
       Durch meine analytische Arbeitsweise und Lösungsorientierung setze ich Projekte zuverlässig um. 
       Eigene Projekte und ständiges Lernen treiben mich an - ebenso wie meine Leidenschaft für 
@@ -185,7 +183,7 @@ export const portfolioData: PortfolioData = {
           id: "git",
           name: "Git/GitHub",
           category: "tools",
-          level: 80,
+          level: 65,
           yearsExperience: 2,
         },
         {
@@ -398,9 +396,9 @@ export const portfolioData: PortfolioData = {
       `,
       technologies: ["React", "TailwindCSS", "CSS3"],
       category: "Frontend",
-      status: "completed",
+      status: "in-progress",
       startDate: "2024-03-01",
-      endDate: "2024-04-30",
+      endDate: null,
       links: {
         github: "https://github.com/steffenvolbeat/Band-Website",
       },
@@ -415,7 +413,7 @@ export const portfolioData: PortfolioData = {
     },
     {
       id: "proj5",
-      title: "Metal3DCore (M3DC)",
+      title: "Metal3DCore-Plattform (M3DC) Abschlussprojekt DCI",
       description:
         "🎸 Metal3DCore Platform - The 3D Core of Metal Culture. Immersive 3D-Fullstack-Webanwendung für Metal-Fans mit virtuellen Konzert-Arenen, Backstage-Bereichen und interaktiven Community-Räumen.",
       longDescription: `
@@ -440,18 +438,18 @@ export const portfolioData: PortfolioData = {
         "Tailwind CSS v4",
         "Prisma ORM",
         "PostgreSQL",
+        "Fiber.js",
         "pgAdmin",
-        "Docker",
         "React Three Fiber",
         "Three.js",
         "NextAuth.js",
       ],
       category: "Full Stack 3D",
-      status: "in-progress",
+      status: "completed",
       startDate: "2024-12-15",
-      endDate: "2025-02-14",
+      endDate: "2025-02-09",
       links: {
-        github: "https://github.com/steffenvolbeat/Metal3DCore",
+        github: "https://github.com/steffenvolbeat/METAL3DCORE-Plattform",
       },
       images: [],
       featured: true,
@@ -525,7 +523,7 @@ export const portfolioData: PortfolioData = {
       {
         name: "E-Mail",
         type: "email",
-        value: "info@nextgen-portfolio.dev",
+        value: "steffen.konstanz@gmx.ch",
         label: "E-Mail",
         icon: "📧",
         primary: true,
@@ -533,15 +531,23 @@ export const portfolioData: PortfolioData = {
       {
         name: "Telefon",
         type: "phone",
-        value: "+49 (0) 123 456789",
+        value: "+49 (0) 173 4235651",
         label: "Telefon",
         icon: "📱",
         primary: false,
       },
       {
+        name: "WhatsApp",
+        type: "whatsapp",
+        value: "+49 173 4235651",
+        label: "WhatsApp",
+        icon: "💬",
+        primary: false,
+      },
+      {
         name: "LinkedIn",
         type: "linkedin",
-        value: "https://linkedin.com/in/nextgen-dev",
+        value: "https://linkedin.com/in/steffenlorenz24",
         label: "LinkedIn",
         icon: "💼",
         primary: false,
@@ -549,7 +555,7 @@ export const portfolioData: PortfolioData = {
       {
         name: "GitHub",
         type: "github",
-        value: "https://github.com/nextgen-dev",
+        value: "https://github.com/steffenvolbeat",
         label: "GitHub",
         icon: "💻",
         primary: false,
@@ -557,7 +563,7 @@ export const portfolioData: PortfolioData = {
       {
         name: "Website",
         type: "website",
-        value: "https://nextgen-portfolio.dev",
+        value: "https://github.com/steffenvolbeat/NextGen-Developer-Portfolio",
         label: "Website",
         icon: "🌐",
         primary: false,
@@ -571,7 +577,7 @@ export const portfolioData: PortfolioData = {
   cv: {
     personalInfo: {
       name: "Steffen Lorenz",
-      title: "Web-Entwickler / Fullstack",
+      title: "Web-& Softwareentwickler / Fullstack",
       location: "Erfurt, Deutschland",
       email: "steffen.konstanz@gmx.ch",
       social: {
@@ -582,12 +588,12 @@ export const portfolioData: PortfolioData = {
       },
     },
     summary:
-      "Engagierter Web-Entwickler mit Fokus auf strukturierte, semantische und performante Weblösungen",
+      "Engagierter Web-& Softwareentwickler mit Fokus auf strukturierte, semantische und performante Weblösungen",
     experience: [],
     education: [],
     skills: [],
     languages: [],
-    downloadUrl: "/documents/NextGen-Developer-CV.pdf",
+    downloadUrl: "/Image/My%20Resume.pdf",
     lastUpdated: "2024-01-15",
     sections: [
       {

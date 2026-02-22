@@ -50,7 +50,8 @@ export const WelcomeStation: React.FC<WelcomeStationProps> = ({
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.8 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm"
+      style={{ zIndex: 100 }}
+      className="fixed inset-0 flex items-center justify-center bg-black/80 backdrop-blur-sm"
     >
       {/* Main Welcome Container */}
       <div className="relative max-w-4xl mx-auto px-6 text-center">

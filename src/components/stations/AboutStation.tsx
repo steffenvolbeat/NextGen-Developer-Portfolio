@@ -1,11 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { portfolioData } from "@/data/portfolio";
 import { cn } from "@/lib/utils";
+import { useStationManager } from "@/contexts/StationManager";
 
 interface AboutStationProps {
   isActive: boolean;
@@ -20,6 +22,17 @@ export const AboutStation: React.FC<AboutStationProps> = ({
     null
   );
   const { about, personal } = portfolioData;
+  const { activateStation } = useStationManager();
+
+  const mailtoHref = personal.email
+    ? `mailto:${encodeURIComponent(personal.email)}`
+    : undefined;
+  const linkedInHref = personal.social?.linkedin;
+
+  const goToContact = () => {
+    activateStation("contact");
+    onClose();
+  };
 
   if (!isActive) return null;
 
@@ -29,7 +42,8 @@ export const AboutStation: React.FC<AboutStationProps> = ({
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
       transition={{ duration: 0.5 }}
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 backdrop-blur-md p-4"
+      style={{ zIndex: 100 }}
+      className="fixed inset-0 flex items-center justify-center bg-black/85 backdrop-blur-md p-4"
     >
       <div className="relative max-w-6xl w-full max-h-[90vh] overflow-y-auto bg-white/5 backdrop-blur-sm border border-white/20 rounded-2xl">
         {/* Header */}
@@ -68,8 +82,16 @@ export const AboutStation: React.FC<AboutStationProps> = ({
                 className="relative w-48 h-48 mx-auto lg:mx-0"
               >
                 <div className="w-full h-full rounded-full bg-linear-to-br from-cyan-400 via-blue-500 to-purple-600 p-1">
-                  <div className="w-full h-full rounded-full bg-gray-800 flex items-center justify-center">
-                    <div className="text-6xl">👨‍💻</div>
+                  <div className="w-full h-full rounded-full bg-gray-800 relative overflow-hidden">
+                    <Image
+                      src="/Image/BW-Foto.jpg"
+                      alt="Steffen Lorenz"
+                      fill
+                      sizes="192px"
+                      className="object-cover"
+                      priority
+                      style={{ objectPosition: "center 12%" }}
+                    />
                   </div>
                 </div>
 
@@ -259,12 +281,26 @@ export const AboutStation: React.FC<AboutStationProps> = ({
                 Bereit für ein Gespräch über Ihr nächstes Projekt?
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button variant="primary" size="lg">
-                  📧 Kontakt aufnehmen
-                </Button>
-                <Button variant="outline" size="lg">
+                <div
+                  className={cn(
+                    "inline-flex items-center justify-center gap-2 h-12 px-6 rounded-md text-white bg-blue-600/70 border border-blue-500/50",
+                    "cursor-default select-none"
+                  )}
+                  aria-disabled="true"
+                >
+                  📧 Kontaktaufnahme: Bitte nutze die Contact-Station oder schreibe an {personal.email}
+                </div>
+                <a
+                  href={linkedInHref}
+                  className={cn(
+                    "inline-flex items-center justify-center gap-2 h-12 px-6 rounded-md border border-slate-300 text-slate-100 hover:bg-white/10 transition-transform group-hover:scale-105",
+                    !linkedInHref && "pointer-events-none opacity-50"
+                  )}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   💼 LinkedIn besuchen
-                </Button>
+                </a>
               </div>
             </div>
           </motion.div>

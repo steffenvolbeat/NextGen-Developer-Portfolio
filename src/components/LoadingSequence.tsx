@@ -524,26 +524,26 @@ export const LoadingSequence: React.FC<LoadingSequenceProps> = ({
   const sequences = [
     {
       id: 1,
-      title: "Würfel erscheint",
-      description: "Ein kleiner Würfel fällt langsam in die CPU",
+      title: "",
+      description: "",
       duration: 5000, // 5 Sekunden - genug Zeit um den Fall zu sehen
     },
     {
       id: 2,
-      title: "Ein- und Austritt",
-      description: "Der Würfel verschwindet und tritt wieder aus",
+      title: "",
+      description: "",
       duration: 3000, // Zeit für Zyklus-Animation
     },
     {
       id: 3,
-      title: "Leiterbahnen aktivieren",
-      description: "Verbindungen zur CPU werden hergestellt",
+      title: "",
+      description: "",
       duration: 2500,
     },
     {
       id: 4,
-      title: "Portfolio-Stationen entstehen",
-      description: "Das interaktive System erwacht zum Leben",
+      title: "",
+      description: "",
       duration: 3000,
     },
     {
@@ -860,7 +860,7 @@ export const LoadingSequence: React.FC<LoadingSequenceProps> = ({
                 key="portfolio-title"
                 initial={{ opacity: 0, scale: 0.5 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 1, delay: 0.5 }}
+                transition={{ duration: 0.5, delay: 0.25 }}
                 className="text-center space-y-6"
               >
                 <motion.h1
@@ -873,7 +873,7 @@ export const LoadingSequence: React.FC<LoadingSequenceProps> = ({
                   NEXTGEN
                 </motion.h1>
                 <motion.div
-                  className="w-48 h-1 mx-auto"
+                  className="w-48 pt-52 h-1 mx-auto"
                   style={{
                     background:
                       theme === "dark"
@@ -882,7 +882,7 @@ export const LoadingSequence: React.FC<LoadingSequenceProps> = ({
                   }}
                   initial={{ width: 0 }}
                   animate={{ width: "12rem" }}
-                  transition={{ delay: 1.5, duration: 1 }}
+                  transition={{ delay: 1.0, duration: 1.5 }}
                 />
                 <motion.p
                   className="text-xl md:text-2xl font-light tracking-wide"
@@ -907,35 +907,35 @@ export const LoadingSequence: React.FC<LoadingSequenceProps> = ({
           </AnimatePresence>
 
           {/* Fortschrittsbalken */}
-          <div
-            className="w-80 h-1 rounded-full overflow-hidden"
-            style={{
-              backgroundColor: theme === "dark" ? "#1e293b" : "#cbd5e1",
-            }}
-          >
-            <motion.div
-              className="h-full"
+            {/*<div
+              className="w-80 h-1 rounded-full overflow-hidden"
               style={{
-                background:
-                  theme === "dark"
-                    ? "linear-gradient(to right, #06b6d4, #3b82f6)"
-                    : "linear-gradient(to right, #0891b2, #2563eb)",
+                backgroundColor: theme === "dark" ? "#1e293b" : "#cbd5e1",
               }}
-              initial={{ width: "0%" }}
-              animate={{
-                width: `${((currentSequence + 1) / sequences.length) * 100}%`,
-              }}
-              transition={{ duration: 0.5 }}
-            />
-          </div>
+            >
+              <motion.div
+                className="h-full"
+                style={{
+                  background:
+                    theme === "dark"
+                      ? "linear-gradient(to right, #06b6d4, #3b82f6)"
+                      : "linear-gradient(to right, #0891b2, #2563eb)",
+                }}
+                initial={{ width: "0%" }}
+                animate={{
+                  width: `${((currentSequence + 1) / sequences.length) * 100}%`,
+                }}
+                transition={{ duration: 0.5 }}
+              />
+            </div>*/}
 
           {/* Sequenz-Nummer */}
-          <div
+          {/*<div
             className="text-sm tracking-wider"
             style={{ color: theme === "dark" ? "#94a3b8" : "#64748b" }}
           >
             {currentSequence + 1} / {sequences.length}
-          </div>
+          </div>*/}
         </div>
       </div>
 

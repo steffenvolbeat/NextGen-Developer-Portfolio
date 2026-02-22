@@ -84,16 +84,16 @@ export const Metal3DCoreCountdown: React.FC = () => {
             🎸
           </motion.div>
           <h2 className="text-4xl font-bold bg-linear-to-r from-red-500 via-orange-500 to-yellow-500 bg-clip-text text-transparent mb-2">
-            Metal3DCore (M3DC)
+            Metal3DCore-Plattform (M3DC) Abschlussprojekt DCI
           </h2>
           <p className="text-gray-300 text-lg italic">
             "The 3D Core of Metal Culture - Where Metal meets the third
             dimension."
           </p>
           <div className="mt-4 text-sm text-gray-400">
-            <div>Projekt Start: 15.12.2024</div>
+            <div>Projekt Start: 03.08.2024</div>
             <div className="text-red-400 font-semibold mt-1">
-              Präsentation: 14.02.2025
+              Präsentation: 09.02.2025
             </div>
           </div>
         </div>
