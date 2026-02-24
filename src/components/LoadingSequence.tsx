@@ -849,18 +849,16 @@ export const LoadingSequence: React.FC<LoadingSequenceProps> = ({
 
           <BuildingBlocks sequence={currentSequence} />
 
-          {/* Development Controls (nur in Dev-Modus) */}
-          {process.env.NODE_ENV === "development" && (
-            <OrbitControls
-              enablePan={false}
-              enableZoom={true}
-              enableRotate={true}
-              minDistance={5}
-              maxDistance={20}
-              minPolarAngle={Math.PI / 6}
-              maxPolarAngle={Math.PI / 2}
-            />
-          )}
+          {/* OrbitControls auch in Production, damit Nutzer die Szene wie lokal bewegen können */}
+          <OrbitControls
+            enablePan={true} 
+            enableZoom={true}
+            enableRotate={true}
+            minDistance={5}
+            maxDistance={20}
+            minPolarAngle={Math.PI / 6}
+            maxPolarAngle={Math.PI / 2}
+          />
         </Canvas>
       </div>
 
