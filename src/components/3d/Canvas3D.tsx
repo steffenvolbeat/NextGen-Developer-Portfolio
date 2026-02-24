@@ -114,20 +114,18 @@ export default function Canvas3D({ children, className = "" }: Canvas3DProps) {
           target-position={[0, 0, 0]}
         />
 
-        {/* Orbit Controls für Development (disabled in production for authentic feel) */}
-        {process.env.NODE_ENV === "development" && (
-          <OrbitControls
-            enablePan={false}
-            enableZoom={true}
-            enableRotate={true}
-            minPolarAngle={Math.PI / 8}
-            maxPolarAngle={Math.PI / 2.2}
-            minDistance={8}
-            maxDistance={30}
-            autoRotate={false}
-            autoRotateSpeed={0.5}
-          />
-        )}
+        {/* Orbit Controls auch in Production, damit Nutzer die Szene wie lokal drehen/zoomen können */}
+        <OrbitControls
+          enablePan={false}
+          enableZoom={true}
+          enableRotate={true}
+          minPolarAngle={Math.PI / 8}
+          maxPolarAngle={Math.PI / 2.2}
+          minDistance={8}
+          maxDistance={30}
+          autoRotate={false}
+          autoRotateSpeed={0.5}
+        />
 
         {/* 3D-Komponenten */}
         <Suspense fallback={null}>{children}</Suspense>
