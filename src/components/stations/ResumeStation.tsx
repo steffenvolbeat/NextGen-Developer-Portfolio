@@ -119,12 +119,15 @@ const certifications: Certification[] = [
     name: "PC-Service Zertifikat",
     issuer: "BFW Thüringen",
     date: "02/2020 - 06/2021",
+    credential: "/Image/Zertifikate/PC-Service%20Zertifikat.jpg",
   },
   {
     id: 2,
     name: "Web- & Softwareentwickler Zertifikat",
     issuer: "DCI - Digital Career Institute",
     date: "02/2025 - 04/2026",
+    credential:
+      "/Image/Zertifikate/Zertifikat_Lorenz,%20Steffen_FbW%20WD%2025-D01.pdf",
   },
 ];
 
@@ -476,9 +479,14 @@ export const ResumeStation: React.FC<ResumeStationProps> = ({
                       </p>
                       <p className="text-xs text-gray-400 mb-3">{cert.date}</p>
                       {cert.credential && (
-                        <div className="text-xs text-gray-500 bg-white/5 px-3 py-1 rounded">
-                          {cert.credential}
-                        </div>
+                        <a
+                          href={cert.credential}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 text-xs text-blue-200 bg-white/5 px-3 py-1 rounded border border-blue-400/40 hover:bg-blue-500/10 transition-colors"
+                        >
+                          🔗 Zertifikat öffnen (PDF)
+                        </a>
                       )}
                     </div>
                   </Card>

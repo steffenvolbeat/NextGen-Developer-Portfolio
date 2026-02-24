@@ -20,7 +20,7 @@ export const portfolioData: PortfolioData = {
     technologies: 12,
     social: {
       github: "https://github.com/steffenvolbeat",
-      linkedin: "https://www.linkedin.com/in/steffenlorenz24",
+      linkedin: "https://www.linkedin.com/in/steffen-lorenz-8412873b2/",
       twitter: "https://twitter.com/steffenvolbeat",
       instagram: "https://instagram.com/steffenvolbeat",
     },
@@ -36,7 +36,7 @@ export const portfolioData: PortfolioData = {
       email: "steffen.konstanz@gmx.ch",
       social: {
         github: "https://github.com/steffenvolbeat",
-        linkedin: "https://www.linkedin.com/in/steffenlorenz24",
+        linkedin: "https://www.linkedin.com/in/steffen-lorenz-8412873b2/",
       },
     },
     description: `
@@ -547,7 +547,7 @@ export const portfolioData: PortfolioData = {
       {
         name: "LinkedIn",
         type: "linkedin",
-        value: "https://linkedin.com/in/steffenlorenz24",
+        value: "https://www.linkedin.com/in/steffen-lorenz-8412873b2/",
         label: "LinkedIn",
         icon: "💼",
         primary: false,
@@ -582,7 +582,7 @@ export const portfolioData: PortfolioData = {
       email: "steffen.konstanz@gmx.ch",
       social: {
         github: "https://github.com/steffenvolbeat",
-        linkedin: "https://www.linkedin.com/in/steffenlorenz24",
+        linkedin: "https://www.linkedin.com/in/steffen-lorenz-8412873b2/",
         twitter: "https://twitter.com/steffenvolbeat",
         instagram: "https://instagram.com/steffenvolbeat",
       },

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Canvas3D from "@/components/3d/Canvas3D";
 import PortfolioStations from "@/components/3d/PortfolioStations";
 import { StationManagerProvider } from "@/contexts/StationManager";
@@ -16,6 +16,13 @@ export default function Home() {
   const [currentView, setCurrentView] = useState<
     "landing" | "loading" | "portfolio"
   >("landing");
+
+  // Skip landing/loading when running Cypress to speed up e2e tests
+  useEffect(() => {
+    if (typeof window !== "undefined" && (window as any).Cypress) {
+      setCurrentView("portfolio");
+    }
+  }, []);
 
   const handleEnterClick = () => {
     setCurrentView("loading");

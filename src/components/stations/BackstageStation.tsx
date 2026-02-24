@@ -265,7 +265,7 @@ export const BackstageStation: React.FC<BackstageStationProps> = ({
                       Zur Contact-Station
                     </Button>
                     <a
-                      href="https://www.linkedin.com/in/steffenlorenz24"
+                      href="https://www.linkedin.com/in/steffen-lorenz-8412873b2/"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex"

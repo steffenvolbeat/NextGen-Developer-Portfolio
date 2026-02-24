@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { OrbitControls, Box, Cylinder, Environment } from "@react-three/drei";
+import { Canvas, useFrame, useLoader } from "@react-three/fiber";
+import { OrbitControls, Box, Cylinder, Environment, Html } from "@react-three/drei";
 import { Mesh, Group, Vector3 } from "three";
 import * as THREE from "three";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -17,14 +17,18 @@ interface CameraControllerProps {
   sequence: number;
 }
 
+const FALL_DURATION = 6; // seconds
+const START_HEIGHT = 8;
+const END_HEIGHT = -0.3;
+
 const CameraController: React.FC<CameraControllerProps> = ({ sequence }) => {
   useFrame(({ camera, clock }) => {
     const time = clock.getElapsedTime();
 
     if (sequence === 0) {
       // Kamera folgt dem Würfel während des Falls
-      const fallProgress = Math.min(time / 4, 1);
-      const targetY = 6 - fallProgress * 6.3;
+      const fallProgress = Math.min(time / FALL_DURATION, 1);
+      const targetY = START_HEIGHT - fallProgress * (START_HEIGHT - END_HEIGHT);
 
       // Sanfte Kamera-Bewegung
       camera.position.y += (targetY * 0.4 + 2 - camera.position.y) * 0.05;
@@ -64,6 +68,9 @@ const AnimatedCube: React.FC<AnimatedCubeProps> = ({ sequence }) => {
   };
 
   useEffect(() => {
+    if (cubeRef.current) {
+      cubeRef.current.position.set(0, START_HEIGHT, 0);
+    }
     setStartAnimation(true);
   }, []);
 
@@ -81,18 +88,18 @@ const AnimatedCube: React.FC<AnimatedCubeProps> = ({ sequence }) => {
 
     if (sequence === 0 && startAnimation) {
       // Sequenz 1: Würfel fällt langsam von oben in die CPU
-      const fallProgress = Math.min(time / 4, 1); // Fall dauert 4 Sekunden (langsamer)
-      const easeInQuart =
-        fallProgress * fallProgress * fallProgress * fallProgress;
+      const fallProgress = Math.min(time / FALL_DURATION, 1);
+      // EaseOutQuad für sanfteren Start
+      const easeOutQuad = 1 - (1 - fallProgress) * (1 - fallProgress);
 
-      // Würfel fällt von Position Y=6 bis Y=-0.3 (SICHTBAR im Kamera-Bereich)
-      cubeRef.current.position.y = 6 - easeInQuart * 6.3;
-      cubeRef.current.position.x = Math.sin(time * 2) * 0.3;
-      cubeRef.current.rotation.x = time * 2;
-      cubeRef.current.rotation.y = time * 1.5;
-      cubeRef.current.rotation.z = time * 1;
+      // Würfel fällt von START_HEIGHT bis END_HEIGHT (sichtbar)
+      cubeRef.current.position.y = START_HEIGHT - easeOutQuad * (START_HEIGHT - END_HEIGHT);
+      cubeRef.current.position.x = Math.sin(time * 1.2) * 0.2;
+      cubeRef.current.rotation.x = time * 1.2;
+      cubeRef.current.rotation.y = time * 1.0;
+      cubeRef.current.rotation.z = time * 0.8;
 
-      const scale = 0.4 + fallProgress * 0.4;
+      const scale = 0.5 + fallProgress * 0.3;
       cubeRef.current.scale.setScalar(scale);
     } else if (sequence === 1 && startAnimation) {
       // Sequenz 2: Würfel erscheint wieder und ragt ZUR HÄLFTE aus CPU heraus
@@ -178,6 +185,34 @@ const AnimatedCube: React.FC<AnimatedCubeProps> = ({ sequence }) => {
         envMapIntensity={1.5}
       />
     </Box>
+  );
+};
+
+// Hintergrund mit Porträt und Titel
+const PortraitBackdrop: React.FC = () => {
+  const texture = useLoader(THREE.TextureLoader, "/Image/BW-Foto.jpg");
+  return (
+    <group>
+      <mesh position={[0, 4, -8]} rotation={[0, 0, 0]}>
+        <planeGeometry args={[5.1, 6]} />
+        <meshBasicMaterial
+          map={texture}
+          toneMapped={false}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+      <Html position={[0, 8, -8]} center distanceFactor={8} transform>
+        <div className="px-4 py-2 rounded-full bg-black/70 text-white text-sm font-semibold shadow-lg backdrop-blur">
+          Web- & Softwareentwickler
+        </div>
+      </Html>
+
+      <Html position={[0, 0.2, -8]} center distanceFactor={10} transform>
+        <div className="px-4 py-2 rounded-full bg-black/70 text-white text-sm font-semibold shadow-lg backdrop-blur">
+          Steffen Lorenz
+        </div>
+      </Html>
+    </group>
   );
 };
 
@@ -526,7 +561,7 @@ export const LoadingSequence: React.FC<LoadingSequenceProps> = ({
       id: 1,
       title: "",
       description: "",
-      duration: 5000, // 5 Sekunden - genug Zeit um den Fall zu sehen
+      duration: 6500, // Längerer Fall (6s) sichtbar
     },
     {
       id: 2,
@@ -579,8 +614,8 @@ export const LoadingSequence: React.FC<LoadingSequenceProps> = ({
       style={{
         background:
           theme === "dark"
-            ? "linear-gradient(to bottom right, #334155, #1e293b, #1e3a8a)"
-            : "linear-gradient(to bottom right, #f1f5f9, #e2e8f0, #dbeafe)",
+            ? "linear-gradient(135deg, #0b1220 0%, #0f172a 35%, #0a0f1c 100%)"
+            : "linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 35%, #e5e7eb 100%)",
       }}
     >
       {/* Hintergrund-Effekte - FOTOREALISTISCH */}
@@ -589,19 +624,19 @@ export const LoadingSequence: React.FC<LoadingSequenceProps> = ({
         style={{
           background:
             theme === "dark"
-              ? "linear-gradient(to top, transparent, rgba(59, 130, 246, 0.05), rgba(6, 182, 212, 0.1))"
-              : "linear-gradient(to top, transparent, rgba(59, 130, 246, 0.1), rgba(6, 182, 212, 0.15))",
+              ? "linear-gradient(to top, rgba(6,12,24,0.8), rgba(8,18,36,0.6), rgba(10,20,40,0.4))"
+              : "linear-gradient(to top, rgba(226,232,240,0.6), rgba(203,213,225,0.4), rgba(229,231,235,0.3))",
         }}
       />
 
       {/* Animated Grid */}
-      <div className="absolute inset-0 opacity-10">
+      <div className="absolute inset-0 opacity-6">
         <div
           className="w-full h-full"
           style={{
             backgroundImage: `
-              linear-gradient(rgba(6,182,212,0.3) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(6,182,212,0.3) 1px, transparent 1px)
+              linear-gradient(rgba(94,234,212,0.18) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(94,234,212,0.18) 1px, transparent 1px)
             `,
             backgroundSize: "40px 40px",
           }}
@@ -629,12 +664,12 @@ export const LoadingSequence: React.FC<LoadingSequenceProps> = ({
           {/* FOTOREALISTISCHE STUDIO-BELEUCHTUNG */}
 
           {/* Ambient/Environment Light */}
-          <ambientLight intensity={0.8} color="#f0f0ff" />
+          <ambientLight intensity={0.5} color="#cdd6ff" />
 
           {/* Key Light - Hauptlicht (vorne rechts oben) */}
           <directionalLight
             position={[8, 12, 6]}
-            intensity={3}
+            intensity={2.2}
             color="#ffffff"
             castShadow
             shadow-mapSize={[4096, 4096]}
@@ -649,22 +684,22 @@ export const LoadingSequence: React.FC<LoadingSequenceProps> = ({
           {/* Fill Light - Fülllicht (links) */}
           <directionalLight
             position={[-6, 8, 4]}
-            intensity={1.5}
-            color="#d4e8ff"
+            intensity={1.0}
+            color="#a5b8ff"
           />
 
           {/* Back Light - Gegenlicht (hinten oben) */}
           <directionalLight
             position={[-3, 10, -8]}
-            intensity={2}
-            color="#fff8e0"
+            intensity={1.4}
+            color="#d0c8a0"
           />
 
           {/* Top Light - Oberlicht */}
           <pointLight
             position={[0, 15, 0]}
-            intensity={2}
-            color="#ffffff"
+            intensity={1.2}
+            color="#cfd9ff"
             distance={25}
             decay={2}
             castShadow
@@ -805,6 +840,7 @@ export const LoadingSequence: React.FC<LoadingSequenceProps> = ({
           <CameraController sequence={currentSequence} />
 
           {/* 3D-Komponenten */}
+          <PortraitBackdrop />
           <AnimatedCube sequence={currentSequence} />
           <CPU3D sequence={currentSequence} />
 
