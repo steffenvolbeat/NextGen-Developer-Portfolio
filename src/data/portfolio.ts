@@ -305,7 +305,7 @@ export const portfolioData: PortfolioData = {
         "TypeScript",
       ],
       category: "3D Visualization",
-      status: "in-progress",
+      status: "in-development",
       startDate: "2024-11-01",
       endDate: null,
       links: {
@@ -396,7 +396,7 @@ export const portfolioData: PortfolioData = {
       `,
       technologies: ["React", "TailwindCSS", "CSS3"],
       category: "Frontend",
-      status: "in-progress",
+      status: "in-development",
       startDate: "2024-03-01",
       endDate: null,
       links: {
@@ -445,7 +445,7 @@ export const portfolioData: PortfolioData = {
         "NextAuth.js",
       ],
       category: "Full Stack 3D",
-      status: "completed",
+      status: "in-development",
       startDate: "2024-12-15",
       endDate: "2025-02-09",
       links: {

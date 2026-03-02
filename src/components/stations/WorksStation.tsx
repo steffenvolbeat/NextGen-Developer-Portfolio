@@ -23,7 +23,12 @@ interface Project {
   githubUrl?: string;
   technologies: string[];
   year: string;
-  status: "completed" | "in-progress" | "planning" | "planned";
+  status:
+    | "completed"
+    | "in-progress"
+    | "in-development"
+    | "planning"
+    | "planned";
 }
 
 // Konvertiere portfolio.ts projects zu WorksStation format
@@ -44,11 +49,7 @@ const projects: Project[] = portfolioData.projects.map((project, index) => {
     githubUrl: project.links?.github,
     technologies: project.technologies,
     year: yearFromDate,
-    status: (project.status || "completed") as
-      | "completed"
-      | "in-progress"
-      | "planning"
-      | "planned",
+    status: (project.status || "completed") as Project["status"],
   };
 });
 
@@ -65,6 +66,7 @@ export const WorksStation: React.FC<WorksStationProps> = ({
       case "completed":
         return "text-green-400 border-green-400/30 bg-green-500/10";
       case "in-progress":
+      case "in-development":
         return "text-yellow-400 border-yellow-400/30 bg-yellow-500/10";
       case "planning":
       case "planned":
@@ -77,6 +79,7 @@ export const WorksStation: React.FC<WorksStationProps> = ({
       case "completed":
         return "✅ Abgeschlossen";
       case "in-progress":
+      case "in-development":
         return "🔄 In Arbeit";
       case "planning":
       case "planned":
@@ -137,7 +140,11 @@ export const WorksStation: React.FC<WorksStationProps> = ({
             </Card>
             <Card className="bg-yellow-500/10 border-yellow-400/30 p-6 text-center">
               <div className="text-4xl font-bold text-yellow-400">
-                {projects.filter((p) => p.status === "in-progress").length}
+                {
+                  projects.filter(
+                    (p) => p.status === "in-progress" || p.status === "in-development"
+                  ).length
+                }
               </div>
               <div className="text-gray-300 mt-2">In Progress</div>
             </Card>
